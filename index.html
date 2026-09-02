@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการและติดตามสถานะงานในสวน</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#2d5a27',
+                            primary: '#4a7c59',
+                            accent: '#8fc0a9',
+                            light: '#e8f1f2',
+                            bg: '#f4f7f6',
+                            card: '#ffffff'
+                        }
+                    },
+                    fontFamily: {
+                        prompt: ['Prompt', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f4f7f6;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e8f1f2;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8fc0a9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a7c59;
+        }
+        .dragging {
+            opacity: 0.5;
+            scale: 0.95;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <header class="w-full bg-brand-dark text-white px-4 py-3 shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            
+            <!-- Left Side: App Icon -->
+            <div class="shrink-0 bg-brand-accent/20 text-brand-accent p-2 rounded-xl hidden sm:flex items-center" title="ระบบจัดการสวน">
+                <i class="fa-solid fa-seedling text-base"></i>
+            </div>
+            
+            <!-- Center: Garden Selector List (Centered Horizontal Drag-and-Drop Pills) -->
+            <div class="flex items-center justify-center overflow-hidden flex-1 w-full sm:w-auto">
+                <!-- Scrollable Garden Tabs -->
+                <div id="garden-list-container" class="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto py-1 px-2 w-full select-none">
+                    <!-- Dynamic Garden Items Loaded Here -->
+                </div>
+            </div>
+
+            <!-- Right Side: Add Garden Button -->
+            <button onclick="openAddGardenModal()" class="shrink-0 text-xs bg-brand-accent text-brand-dark px-3.5 py-2 rounded-xl font-semibold hover:bg-white transition flex items-center justify-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-plus text-xs"></i> เพิ่มสวนใหม่
+            </button>
+
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+        
+        <!-- Top Bar / Active Garden Header -->
+        <div id="active-garden-header" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6 flex flex-wrap justify-between items-center gap-4">
+            <div>
+                <span class="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-medium mb-2 inline-block">
+                    <i class="fa-solid fa-location-dot mr-1"></i> สวนที่กำลังจัดการ
+                </span>
+                <h2 id="garden-title" class="text-2xl font-bold text-gray-800">กรุณาเลือกหรือสร้างสวน</h2>
+                <p id="garden-desc" class="text-sm text-gray-500 mt-1">รายละเอียดและภาพรวมการดำเนินงาน</p>
+            </div>
+            <div class="flex items-center gap-2" id="header-actions">
+                <!-- Actions like move position & delete garden will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Main Content Dashboard Grid -->
+        <div id="dashboard-content" class="space-y-6 hidden">
+            
+            <!-- Overall Progress Summary Cards with Styled Glowing Icons -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-lg font-bold border border-rose-100 shadow-sm relative">
+                        <span class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-rose-500 rounded-full animate-ping opacity-75"></span>
+                        <i class="fa-solid fa-hourglass-start"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-medium">งานยังไม่ทำ</p>
+                        <h3 id="stat-todo" class="text-xl font-bold text-gray-800">0 รายการ</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-lg font-bold border border-amber-100 shadow-sm">
+                        <i class="fa-solid fa-arrows-spin fa-spin"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-medium">งานกำลังทำ</p>
+                        <h3 id="stat-doing" class="text-xl font-bold text-gray-800">0 รายการ</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold border border-emerald-100 shadow-sm">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-medium">งานเสร็จแล้ว</p>
+                        <h3 id="stat-done" class="text-xl font-bold text-gray-800">0 รายการ</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two Columns Layout: Tasks & Financials -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left Column (7 cols): Tasks & Items Needed -->
+                <div class="lg:col-span-7 space-y-6">
+                    
+                    <!-- Task Management Card -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+                            <div>
+                                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-brand-primary"></i> ขั้นตอนการทำงานในสวน
+                                </h3>
+                                <p class="text-xs text-gray-500">บันทึกและติดตามสถานะงาน</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <!-- Reset Tasks Button -->
+                                <button onclick="confirmResetTasks()" class="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1.5 rounded-xl transition font-medium flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate-left"></i> รีเซ็ตขั้นตอน
+                                </button>
+                                <button onclick="openAddTaskModal()" class="bg-brand-primary text-white text-xs px-3 py-1.5 rounded-xl hover:bg-brand-dark transition font-medium flex items-center gap-1 shadow-sm">
+                                    <i class="fa-solid fa-plus"></i> เพิ่มงานใหม่
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Task List -->
+                        <div id="task-list" class="space-y-3 max-h-[350px] overflow-y-auto pr-1">
+                            <!-- Dynamic Tasks Loaded Here -->
+                        </div>
+                    </div>
+
+                    <!-- Required Items Card -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+                            <div>
+                                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-boxes-packing text-amber-600"></i> สิ่งที่ต้องใช้ในสวน
+                                </h3>
+                                <p class="text-xs text-gray-500">ปุ๋ย ยา อุปกรณ์</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <!-- Reset Items Button -->
+                                <button onclick="confirmResetItems()" class="text-xs bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 px-2.5 py-1.5 rounded-xl transition font-medium flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate-left"></i> รีเซ็ตสิ่งของ
+                                </button>
+                                <button onclick="openAddItemModal()" class="bg-amber-600 text-white text-xs px-3 py-1.5 rounded-xl hover:bg-amber-700 transition font-medium flex items-center gap-1 shadow-sm">
+                                    <i class="fa-solid fa-plus"></i> เพิ่มสิ่งของ
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Items List -->
+                        <div id="item-list" class="space-y-2 max-h-[250px] overflow-y-auto pr-1">
+                            <!-- Dynamic Items Loaded Here -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column (5 cols): Finance & Accounting -->
+                <div class="lg:col-span-5 space-y-6">
+                    
+                    <!-- Finance Summary Box -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+                            <div>
+                                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-wallet text-emerald-600"></i> สรุปรายรับ - รายจ่าย
+                                </h3>
+                                <p class="text-xs text-gray-500">การเงินเฉพาะสวนนี้</p>
+                            </div>
+                            <!-- Reset Finance Button -->
+                            <button onclick="confirmResetFinance()" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-xl transition font-medium flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-left"></i> รีเซ็ตบัญชี
+                            </button>
+                        </div>
+
+                        <!-- Total Net Balance Display -->
+                        <div class="bg-slate-800 text-white p-4 rounded-xl mb-4 text-center relative overflow-hidden">
+                            <span class="text-xs text-slate-300 font-medium">กำไร / ขาดทุน สุทธิ</span>
+                            <div id="net-balance" class="text-2xl font-bold mt-1 text-emerald-400">0.00 ฿</div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 mb-6">
+                            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                                <span class="text-xs text-emerald-700 font-medium block"><i class="fa-solid fa-arrow-down-left mr-1"></i> รายรับรวม</span>
+                                <span id="total-income" class="text-base font-bold text-emerald-600">0.00 ฿</span>
+                            </div>
+                            <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
+                                <span class="text-xs text-rose-700 font-medium block"><i class="fa-solid fa-arrow-up-right mr-1"></i> รายจ่ายรวม</span>
+                                <span id="total-expense" class="text-base font-bold text-rose-600">0.00 ฿</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Button to Add Finance Entry -->
+                        <div class="flex gap-2 mb-4">
+                            <button onclick="openAddFinanceModal('income')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 rounded-xl font-medium transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-plus-circle"></i> เพิ่มรายรับ
+                            </button>
+                            <button onclick="openAddFinanceModal('expense')" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white text-xs py-2.5 rounded-xl font-medium transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-minus-circle"></i> เพิ่มรายจ่าย
+                            </button>
+                        </div>
+
+                        <!-- Finance Transaction History Table -->
+                        <div class="border-t border-gray-100 pt-3">
+                            <h4 class="text-xs font-semibold text-gray-500 mb-2">ประวัติการบันทึกการเงิน</h4>
+                            <div id="finance-list" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                                <!-- Dynamic Finance Transactions Loaded Here -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Empty State (When no garden selected) -->
+        <div id="empty-state" class="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100 my-auto">
+            <div class="w-20 h-20 bg-green-50 text-brand-primary rounded-full flex items-center justify-center mx-auto text-3xl mb-4">
+                <i class="fa-solid fa-tree"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">ยินดีต้อนรับสู่ระบบจัดการสวน</h3>
+            <p class="text-sm text-gray-500 max-w-md mx-auto mb-6">เริ่มต้นการใช้งานโดยการสร้างสวนใหม่ของคุณ (เช่น สวนที่ 1, สวนผลไม้, สวนผักครัวเรือน) เพื่อบันทึกงานและรายรับรายจ่าย</p>
+            <button onclick="openAddGardenModal()" class="bg-brand-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-brand-dark transition inline-flex items-center gap-2 shadow-md">
+                <i class="fa-solid fa-plus"></i> เพิ่มสวนแรกของคุณ
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-3 text-center text-xs text-gray-400 bg-white border-t border-gray-100">
+        <p><i class="fa-solid fa-leaf text-brand-primary mr-1"></i> วางแผนและบันทึกงานสวนอย่างง่ายดาย</p>
+    </footer>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Modal 1: Add Garden -->
+    <div id="modal-add-garden" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative animate-fade-in">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">เพิ่มสวนใหม่</h3>
+            <form onsubmit="handleAddGarden(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อสวน *</label>
+                        <input type="text" id="garden-name-input" required placeholder="เช่น สวนที่ 1, สวนทุเรียน" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">คำอธิบายเพิ่มเติม</label>
+                        <textarea id="garden-desc-input" rows="2" placeholder="รายละเอียด เช่น ขนาดพื้นที่, ประเภทพืชที่ปลูก..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"></textarea>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-add-garden')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl">ยกเลิก</button>
+                    <button type="submit" class="px-4 py-2 text-sm bg-brand-primary text-white rounded-xl hover:bg-brand-dark font-medium">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Add Task -->
+    <div id="modal-add-task" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">เพิ่มขั้นตอนการทำงาน</h3>
+            <form onsubmit="handleAddTask(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อขั้นตอน/งาน *</label>
+                        <input type="text" id="task-title-input" required placeholder="เช่น ใส่ปุ๋ยรอบที่ 1, พรวนดิน" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">สถานะเริ่มต้น</label>
+                        <select id="task-status-input" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            <option value="todo">🔴 ยังไม่ทำ</option>
+                            <option value="doing">🟡 กำลังทำ</option>
+                            <option value="done">🟢 เสร็จแล้ว</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-add-task')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl">ยกเลิก</button>
+                    <button type="submit" class="px-4 py-2 text-sm bg-brand-primary text-white rounded-xl hover:bg-brand-dark font-medium">บันทึกงาน</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 3: Add Required Item -->
+    <div id="modal-add-item" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">เพิ่มสิ่งของที่ต้องใช้</h3>
+            <form onsubmit="handleAddItem(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อสิ่งของ / อุปกรณ์ *</label>
+                        <input type="text" id="item-name-input" required placeholder="เช่น ปุ๋ยคอก, เมล็ดพันธุ์ผักกาด" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">จำนวน/หน่วย *</label>
+                            <input type="text" id="item-qty-input" required placeholder="เช่น 2 กระสอบ" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">ราคาประเมิน (บาท)</label>
+                            <input type="number" step="0.01" id="item-cost-input" placeholder="0.00" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-100">
+                        <i class="fa-solid fa-circle-info mr-1"></i> หากกรอกราคาประเมิน ระบบจะลงบันทึกเป็นรายจ่ายให้อัตโนมัติ
+                    </p>
+                </div>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-add-item')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl">ยกเลิก</button>
+                    <button type="submit" class="px-4 py-2 text-sm bg-amber-600 text-white rounded-xl hover:bg-amber-700 font-medium">เพิ่มสิ่งของ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 4: Add Finance Entry -->
+    <div id="modal-add-finance" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <h3 id="finance-modal-title" class="text-lg font-bold text-gray-800 mb-4">บันทึกการเงิน</h3>
+            <form onsubmit="handleAddFinance(event)">
+                <input type="hidden" id="finance-type-input">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">รายการ *</label>
+                        <input type="text" id="finance-title-input" required placeholder="เช่น ขายผลผลิต, ซื้อยาฆ่าแมลง" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">จำนวนเงิน (บาท) *</label>
+                        <input type="number" step="0.01" min="0" id="finance-amount-input" required placeholder="0.00" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-add-finance')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl">ยกเลิก</button>
+                    <button type="submit" id="finance-submit-btn" class="px-4 py-2 text-sm text-white rounded-xl font-medium">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 5: Custom Confirm Dialog -->
+    <div id="modal-confirm" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl mb-3">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="confirm-title" class="font-bold text-gray-800 text-base mb-1">ยืนยันการทำรายการ</h3>
+            <p id="confirm-message" class="text-xs text-gray-500 mb-6">คุณแน่ใจหรือไม่ที่ต้องการทำรายการนี้?</p>
+            <div class="flex gap-2">
+                <button type="button" onclick="closeModal('modal-confirm')" class="flex-1 py-2 text-sm border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50">ยกเลิก</button>
+                <button type="button" id="confirm-action-btn" class="flex-1 py-2 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // Global Application State (In-Memory)
+        let gardens = [];
+        let activeGardenId = null;
+        let draggedIndex = null;
+
+        // Initialize App on DOM Ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Seed initial sample data if empty
+            loadSampleData();
+            renderGardenList();
+            
+            if (gardens.length > 0) {
+                selectGarden(gardens[0].id);
+            } else {
+                renderEmptyState();
+            }
+        });
+
+        // Sample Data Seeder
+        function loadSampleData() {
+            gardens = [
+                {
+                    id: 'g1',
+                    name: 'สวนที่ 1 (ผักปลอดสาร)',
+                    description: 'แปลงผักสลัดและผักสวนครัว',
+                    tasks: [
+                        { id: 't1', title: 'เตรียมแปลงดินและหว่านปุ๋ยหมัก', status: 'done' },
+                        { id: 't2', title: 'ย้ายต้นกล้าลงแปลง', status: 'doing' },
+                        { id: 't3', title: 'ติดตั้งระบบน้ำหยด', status: 'todo' }
+                    ],
+                    items: [
+                        { id: 'i1', name: 'ปุ๋ยหมักชีวภาพ', qty: '3 ถุง', cost: 450 },
+                        { id: 'i2', name: 'สายน้ำหยด 50m', qty: '1 ม้วน', cost: 380 }
+                    ],
+                    finances: [
+                        { id: 'f1', type: 'expense', title: 'ซื้อเมล็ดพันธุ์ผัก', amount: 250, linkedItemId: null },
+                        { id: 'f2', type: 'expense', title: 'ซื้อปุ๋ยหมักชีวภาพ (3 ถุง)', amount: 450, linkedItemId: 'i1' },
+                        { id: 'f3', type: 'expense', title: 'ซื้อสายน้ำหยด 50m (1 ม้วน)', amount: 380, linkedItemId: 'i2' },
+                        { id: 'f4', type: 'income', title: 'ขายผักสลัดลอตแรก', amount: 1200, linkedItemId: null }
+                    ]
+                },
+                {
+                    id: 'g2',
+                    name: 'สวนที่ 2 (ไม้ผล)',
+                    description: 'แปลงมะม่วงและมะพร้าวน้ำหอม',
+                    tasks: [
+                        { id: 't4', title: 'ตัดแต่งกิ่งมะม่วงหลังเก็บเกี่ยว', status: 'done' },
+                        { id: 't5', title: 'ฉีดพ่นน้ำหมักไล่แมลง', status: 'todo' }
+                    ],
+                    items: [
+                        { id: 'i3', name: 'กรรไกรตัดแต่งกิ่ง', qty: '1 อัน', cost: 290 }
+                    ],
+                    finances: [
+                        { id: 'f5', type: 'expense', title: 'ซื้อกรรไกรตัดแต่งกิ่ง (1 อัน)', amount: 290, linkedItemId: 'i3' },
+                        { id: 'f6', type: 'income', title: 'ขายมะม่วงน้ำดอกไม้', amount: 4500, linkedItemId: null }
+                    ]
+                }
+            ];
+        }
+
+        // Render Top Bar Garden Tabs with Drag & Drop Features
+        function renderGardenList() {
+            const container = document.getElementById('garden-list-container');
+            container.innerHTML = '';
+
+            if (gardens.length === 0) {
+                container.innerHTML = `<span class="text-xs text-green-300 italic">ยังไม่มีข้อมูลสวน</span>`;
+                return;
+            }
+
+            gardens.forEach((garden, index) => {
+                const isActive = garden.id === activeGardenId;
+                const card = document.createElement('div');
+                card.draggable = true;
+                card.dataset.index = index;
+                card.className = `px-3 py-1.5 rounded-xl cursor-grab active:cursor-grabbing transition flex items-center gap-2 shrink-0 text-xs font-medium whitespace-nowrap border ${
+                    isActive 
+                        ? 'bg-brand-accent text-brand-dark shadow-sm border-brand-accent' 
+                        : 'bg-green-800/60 hover:bg-green-800 text-green-100 border-green-700/50'
+                }`;
+
+                card.innerHTML = `
+                    <i class="fa-solid fa-grip-vertical text-[10px] opacity-40 hover:opacity-100 mr-0.5"></i>
+                    <i class="fa-solid fa-tree ${isActive ? 'text-brand-dark' : 'text-brand-accent'} text-xs"></i>
+                    <span>${escapeHtml(garden.name)}</span>
+                `;
+
+                // Click event
+                card.onclick = (e) => {
+                    selectGarden(garden.id);
+                };
+
+                // Desktop Drag & Drop Handlers
+                card.ondragstart = (e) => {
+                    draggedIndex = index;
+                    card.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                };
+
+                card.ondragend = () => {
+                    card.classList.remove('dragging');
+                    draggedIndex = null;
+                };
+
+                card.ondragover = (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                };
+
+                card.ondrop = (e) => {
+                    e.preventDefault();
+                    if (draggedIndex !== null && draggedIndex !== index) {
+                        moveGardenPosition(draggedIndex, index);
+                    }
+                };
+
+                container.appendChild(card);
+            });
+        }
+
+        // Function to Swap/Move Garden Index Position
+        function moveGardenPosition(fromIndex, toIndex) {
+            if (fromIndex < 0 || fromIndex >= gardens.length || toIndex < 0 || toIndex >= gardens.length) return;
+            
+            const movedGarden = gardens.splice(fromIndex, 1)[0];
+            gardens.splice(toIndex, 0, movedGarden);
+            
+            renderGardenList();
+            if (activeGardenId) {
+                renderHeaderActions();
+            }
+        }
+
+        // Move active garden left or right via buttons
+        function shiftActiveGarden(direction) {
+            const currentIndex = gardens.findIndex(g => g.id === activeGardenId);
+            if (currentIndex === -1) return;
+            
+            const targetIndex = currentIndex + direction;
+            if (targetIndex >= 0 && targetIndex < gardens.length) {
+                moveGardenPosition(currentIndex, targetIndex);
+            }
+        }
+
+        // Render Action Buttons in Header (Move & Delete)
+        function renderHeaderActions() {
+            const headerActions = document.getElementById('header-actions');
+            const currentIndex = gardens.findIndex(g => g.id === activeGardenId);
+            
+            if (currentIndex === -1) {
+                headerActions.innerHTML = '';
+                return;
+            }
+
+            const canMoveLeft = currentIndex > 0;
+            const canMoveRight = currentIndex < gardens.length - 1;
+
+            headerActions.innerHTML = `
+                <div class="flex items-center gap-1 border border-gray-200 bg-gray-50 rounded-xl p-1 mr-1">
+                    <button onclick="shiftActiveGarden(-1)" ${!canMoveLeft ? 'disabled class="opacity-30 cursor-not-allowed px-2 py-1 text-xs text-gray-500"' : 'class="px-2 py-1 text-xs text-gray-700 hover:bg-white hover:shadow-sm rounded-lg transition" title="ขยับปุ่มสวนไปทางซ้าย"'}>
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <span class="text-[11px] font-medium text-gray-500 px-1">ลำดับที่ ${currentIndex + 1}</span>
+                    <button onclick="shiftActiveGarden(1)" ${!canMoveRight ? 'disabled class="opacity-30 cursor-not-allowed px-2 py-1 text-xs text-gray-500"' : 'class="px-2 py-1 text-xs text-gray-700 hover:bg-white hover:shadow-sm rounded-lg transition" title="ขยับปุ่มสวนไปทางขวา"'}>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+                <button onclick="confirmDeleteGarden('${activeGardenId}')" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 px-3 py-2 rounded-xl transition flex items-center gap-1 font-medium">
+                    <i class="fa-solid fa-trash"></i> ลบสวนนี้
+                </button>
+            `;
+        }
+
+        // Select Active Garden
+        function selectGarden(gardenId) {
+            activeGardenId = gardenId;
+            renderGardenList();
+            
+            const garden = gardens.find(g => g.id === gardenId);
+            if (!garden) {
+                renderEmptyState();
+                return;
+            }
+
+            // Show Dashboard Layout
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('dashboard-content').classList.remove('hidden');
+
+            // Set Garden Title & Actions
+            document.getElementById('garden-title').innerText = garden.name;
+            document.getElementById('garden-desc').innerText = garden.description || 'ไม่มีคำอธิบายเพิ่มเติม';
+            
+            renderHeaderActions();
+
+            // Render Dashboard Sections
+            renderTasks(garden);
+            renderItems(garden);
+            renderFinances(garden);
+        }
+
+        function renderEmptyState() {
+            activeGardenId = null;
+            document.getElementById('empty-state').classList.remove('hidden');
+            document.getElementById('dashboard-content').classList.add('hidden');
+            document.getElementById('garden-title').innerText = 'กรุณาเลือกหรือสร้างสวน';
+            document.getElementById('garden-desc').innerText = 'รายละเอียดและภาพรวมการดำเนินงาน';
+            document.getElementById('header-actions').innerHTML = '';
+        }
+
+        // Render Tasks Section
+        function renderTasks(garden) {
+            const list = document.getElementById('task-list');
+            list.innerHTML = '';
+
+            const todoCount = garden.tasks.filter(t => t.status === 'todo').length;
+            const doingCount = garden.tasks.filter(t => t.status === 'doing').length;
+            const doneCount = garden.tasks.filter(t => t.status === 'done').length;
+
+            document.getElementById('stat-todo').innerText = `${todoCount} รายการ`;
+            document.getElementById('stat-doing').innerText = `${doingCount} รายการ`;
+            document.getElementById('stat-done').innerText = `${doneCount} รายการ`;
+
+            if (garden.tasks.length === 0) {
+                list.innerHTML = `<div class="text-center py-6 text-xs text-gray-400">ยังไม่มีขั้นตอนการทำงาน <br>คลิก "+ เพิ่มงานใหม่" เพื่อบันทึก</div>`;
+                return;
+            }
+
+            garden.tasks.forEach(task => {
+                const item = document.createElement('div');
+                item.className = 'p-3 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-between gap-3 hover:bg-gray-100/80 transition';
+                
+                let badgeClass = '';
+                let statusBadge = '';
+                
+                if (task.status === 'todo') {
+                    badgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
+                    statusBadge = `
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700 border border-rose-200/80 shadow-xs">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                            ยังไม่ทำ
+                        </span>`;
+                } else if (task.status === 'doing') {
+                    badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+                    statusBadge = `
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200/80 shadow-xs">
+                            <i class="fa-solid fa-rotate text-[10px] animate-spin text-amber-600"></i>
+                            กำลังทำ
+                        </span>`;
+                } else {
+                    badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                    statusBadge = `
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200/80 shadow-xs">
+                            <i class="fa-solid fa-check text-[10px] text-emerald-600"></i>
+                            เสร็จแล้ว
+                        </span>`;
+                }
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-3 min-w-0">
+                        ${statusBadge}
+                        <span class="text-sm text-gray-800 font-medium ${task.status === 'done' ? 'line-through text-gray-400' : ''}">${escapeHtml(task.title)}</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <select onchange="updateTaskStatus('${task.id}', this.value)" class="text-xs px-2.5 py-1 rounded-xl border text-gray-700 font-medium bg-white focus:outline-none shadow-xs ${badgeClass}">
+                            <option value="todo" ${task.status === 'todo' ? 'selected' : ''}>🔴 ยังไม่ทำ</option>
+                            <option value="doing" ${task.status === 'doing' ? 'selected' : ''}>🟡 กำลังทำ</option>
+                            <option value="done" ${task.status === 'done' ? 'selected' : ''}>🟢 เสร็จแล้ว</option>
+                        </select>
+                        <button onclick="deleteTask('${task.id}')" class="text-gray-400 hover:text-rose-600 p-1 rounded-lg hover:bg-rose-50 transition">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // Render Required Items Section
+        function renderItems(garden) {
+            const list = document.getElementById('item-list');
+            list.innerHTML = '';
+
+            if (garden.items.length === 0) {
+                list.innerHTML = `<div class="text-center py-6 text-xs text-gray-400">ยังไม่มีรายการสิ่งที่ต้องใช้</div>`;
+                return;
+            }
+
+            garden.items.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'p-3 rounded-xl border border-gray-100 bg-gray-50 flex justify-between items-center text-xs';
+                el.innerHTML = `
+                    <div>
+                        <span class="font-semibold text-gray-800 block text-sm">${escapeHtml(item.name)}</span>
+                        <span class="text-gray-500">จำนวน: ${escapeHtml(item.qty)}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        ${item.cost ? `<span class="font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">~ ${formatMoney(item.cost)} ฿</span>` : ''}
+                        <button onclick="deleteItem('${item.id}')" class="text-gray-400 hover:text-rose-600 p-1">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        // Render Finances Section
+        function renderFinances(garden) {
+            const list = document.getElementById('finance-list');
+            list.innerHTML = '';
+
+            let totalIncome = 0;
+            let totalExpense = 0;
+
+            garden.finances.forEach(f => {
+                if (f.type === 'income') totalIncome += Number(f.amount);
+                if (f.type === 'expense') totalExpense += Number(f.amount);
+            });
+
+            const netBalance = totalIncome - totalExpense;
+
+            document.getElementById('total-income').innerText = `${formatMoney(totalIncome)} ฿`;
+            document.getElementById('total-expense').innerText = `${formatMoney(totalExpense)} ฿`;
+            
+            const netEl = document.getElementById('net-balance');
+            netEl.innerText = `${formatMoney(netBalance)} ฿`;
+            netEl.className = `text-2xl font-bold mt-1 ${netBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+            if (garden.finances.length === 0) {
+                list.innerHTML = `<div class="text-center py-6 text-xs text-gray-400">ยังไม่มีประวัติรายรับ-รายจ่าย</div>`;
+                return;
+            }
+
+            garden.finances.forEach(f => {
+                const isIncome = f.type === 'income';
+                const item = document.createElement('div');
+                item.className = 'p-2.5 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-between text-xs';
+                item.innerHTML = `
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${isIncome ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}">
+                            <i class="fa-solid ${isIncome ? 'fa-plus' : 'fa-minus'} text-[10px]"></i>
+                        </div>
+                        <span class="text-gray-700 font-medium truncate">${escapeHtml(f.title)}</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="font-bold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}">
+                            ${isIncome ? '+' : '-'}${formatMoney(f.amount)} ฿
+                        </span>
+                        <button onclick="deleteFinance('${f.id}')" class="text-gray-400 hover:text-rose-600 p-0.5">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // --- Actions & Handlers ---
+
+        function handleAddGarden(e) {
+            e.preventDefault();
+            const name = document.getElementById('garden-name-input').value.trim();
+            const desc = document.getElementById('garden-desc-input').value.trim();
+
+            if (!name) return;
+
+            const newGarden = {
+                id: 'g_' + Date.now(),
+                name: name,
+                description: desc,
+                tasks: [],
+                items: [],
+                finances: []
+            };
+
+            gardens.push(newGarden);
+            closeModal('modal-add-garden');
+            document.getElementById('garden-name-input').value = '';
+            document.getElementById('garden-desc-input').value = '';
+
+            selectGarden(newGarden.id);
+        }
+
+        function handleAddTask(e) {
+            e.preventDefault();
+            if (!activeGardenId) return;
+
+            const title = document.getElementById('task-title-input').value.trim();
+            const status = document.getElementById('task-status-input').value;
+
+            if (!title) return;
+
+            const garden = gardens.find(g => g.id === activeGardenId);
+            garden.tasks.push({
+                id: 't_' + Date.now(),
+                title: title,
+                status: status
+            });
+
+            closeModal('modal-add-task');
+            document.getElementById('task-title-input').value = '';
+            renderTasks(garden);
+        }
+
+        function handleAddItem(e) {
+            e.preventDefault();
+            if (!activeGardenId) return;
+
+            const name = document.getElementById('item-name-input').value.trim();
+            const qty = document.getElementById('item-qty-input').value.trim();
+            const cost = parseFloat(document.getElementById('item-cost-input').value) || 0;
+
+            if (!name || !qty) return;
+
+            const garden = gardens.find(g => g.id === activeGardenId);
+            
+            // 1. Add item to required items list
+            const newItemId = 'i_' + Date.now();
+            garden.items.push({
+                id: newItemId,
+                name: name,
+                qty: qty,
+                cost: cost
+            });
+
+            // 2. Automatically record as Expense in Financials with linkedItemId if cost > 0
+            if (cost > 0) {
+                garden.finances.push({
+                    id: 'f_' + Date.now(),
+                    type: 'expense',
+                    title: `ซื้อ${name} (${qty})`,
+                    amount: cost,
+                    linkedItemId: newItemId // Link to item for automatic deletion
+                });
+            }
+
+            closeModal('modal-add-item');
+            document.getElementById('item-name-input').value = '';
+            document.getElementById('item-qty-input').value = '';
+            document.getElementById('item-cost-input').value = '';
+            
+            renderItems(garden);
+            renderFinances(garden);
+        }
+
+        function handleAddFinance(e) {
+            e.preventDefault();
+            if (!activeGardenId) return;
+
+            const type = document.getElementById('finance-type-input').value;
+            const title = document.getElementById('finance-title-input').value.trim();
+            const amount = parseFloat(document.getElementById('finance-amount-input').value) || 0;
+
+            if (!title || amount <= 0) return;
+
+            const garden = gardens.find(g => g.id === activeGardenId);
+            garden.finances.push({
+                id: 'f_' + Date.now(),
+                type: type,
+                title: title,
+                amount: amount,
+                linkedItemId: null
+            });
+
+            closeModal('modal-add-finance');
+            document.getElementById('finance-title-input').value = '';
+            document.getElementById('finance-amount-input').value = '';
+            renderFinances(garden);
+        }
+
+        function updateTaskStatus(taskId, newStatus) {
+            const garden = gardens.find(g => g.id === activeGardenId);
+            if (!garden) return;
+            
+            const task = garden.tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = newStatus;
+                renderTasks(garden);
+            }
+        }
+
+        function deleteTask(taskId) {
+            const garden = gardens.find(g => g.id === activeGardenId);
+            if (!garden) return;
+            garden.tasks = garden.tasks.filter(t => t.id !== taskId);
+            renderTasks(garden);
+        }
+
+        function deleteItem(itemId) {
+            const garden = gardens.find(g => g.id === activeGardenId);
+            if (!garden) return;
+
+            // 1. Delete item from required items list
+            garden.items = garden.items.filter(i => i.id !== itemId);
+
+            // 2. Automatically delete associated finance expense item
+            garden.finances = garden.finances.filter(f => f.linkedItemId !== itemId);
+
+            renderItems(garden);
+            renderFinances(garden);
+        }
+
+        function deleteFinance(financeId) {
+            const garden = gardens.find(g => g.id === activeGardenId);
+            if (!garden) return;
+            garden.finances = garden.finances.filter(f => f.id !== financeId);
+            renderFinances(garden);
+        }
+
+        function confirmResetTasks() {
+            showConfirmDialog(
+                'รีเซ็ตขั้นตอนการทำงาน',
+                'คุณแน่ใจหรือไม่ว่าต้องการลบขั้นตอนการทำงานทั้งหมดในสวนนี้? การกระทำนี้ไม่สามารถย้อนกลับได้',
+                () => {
+                    const garden = gardens.find(g => g.id === activeGardenId);
+                    if (garden) {
+                        garden.tasks = [];
+                        renderTasks(garden);
+                    }
+                }
+            );
+        }
+
+        function confirmResetItems() {
+            showConfirmDialog(
+                'รีเซ็ตสิ่งที่ต้องใช้ในสวน',
+                'คุณแน่ใจหรือไม่ว่าต้องการลบรายการสิ่งของทั้งหมดในสวนนี้? รายการรายจ่ายที่เชื่อมโยงกับสิ่งของจะถูกลบออกจากบัญชีด้วย',
+                () => {
+                    const garden = gardens.find(g => g.id === activeGardenId);
+                    if (garden) {
+                        // Get list of item IDs being removed
+                        const itemIds = garden.items.map(i => i.id);
+
+                        // 1. Clear items list
+                        garden.items = [];
+
+                        // 2. Remove all finances linked to these items
+                        garden.finances = garden.finances.filter(f => !itemIds.includes(f.linkedItemId));
+
+                        renderItems(garden);
+                        renderFinances(garden);
+                    }
+                }
+            );
+        }
+
+        function confirmResetFinance() {
+            showConfirmDialog(
+                'รีเซ็ตรายรับ-รายจ่าย',
+                'คุณแน่ใจหรือไม่ว่าต้องการลบรายการรายรับ-รายจ่ายทั้งหมดในสวนนี้? การกระทำนี้ไม่สามารถย้อนกลับได้',
+                () => {
+                    const garden = gardens.find(g => g.id === activeGardenId);
+                    if (garden) {
+                        garden.finances = [];
+                        renderFinances(garden);
+                    }
+                }
+            );
+        }
+
+        function confirmDeleteGarden(gardenId) {
+            const garden = gardens.find(g => g.id === gardenId);
+            if (!garden) return;
+
+            showConfirmDialog(
+                `ลบข้อมูล "${garden.name}"`,
+                'คุณแน่ใจหรือไม่ว่าต้องการลบสวนนี้รวมถึงขั้นตอนและบัญชีทั้งหมดที่บันทึกไว้?',
+                () => {
+                    gardens = gardens.filter(g => g.id !== gardenId);
+                    if (gardens.length > 0) {
+                        selectGarden(gardens[0].id);
+                    } else {
+                        renderGardenList();
+                        renderEmptyState();
+                    }
+                }
+            );
+        }
+
+        // --- Modal Helpers ---
+
+        function openAddGardenModal() {
+            openModal('modal-add-garden');
+        }
+
+        function openAddTaskModal() {
+            if (!activeGardenId) return;
+            openModal('modal-add-task');
+        }
+
+        function openAddItemModal() {
+            if (!activeGardenId) return;
+            openModal('modal-add-item');
+        }
+
+        function openAddFinanceModal(type) {
+            if (!activeGardenId) return;
+            
+            document.getElementById('finance-type-input').value = type;
+            const titleEl = document.getElementById('finance-modal-title');
+            const btnEl = document.getElementById('finance-submit-btn');
+
+            if (type === 'income') {
+                titleEl.innerText = 'บันทึกรายรับ (+)';
+                btnEl.className = 'px-4 py-2 text-sm text-white rounded-xl font-medium bg-emerald-600 hover:bg-emerald-700';
+            } else {
+                titleEl.innerText = 'บันทึกรายจ่าย (-)';
+                btnEl.className = 'px-4 py-2 text-sm text-white rounded-xl font-medium bg-rose-600 hover:bg-rose-700';
+            }
+
+            openModal('modal-add-finance');
+        }
+
+        function showConfirmDialog(title, message, onConfirm) {
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-message').innerText = message;
+            
+            const actionBtn = document.getElementById('confirm-action-btn');
+            actionBtn.onclick = () => {
+                onConfirm();
+                closeModal('modal-confirm');
+            };
+
+            openModal('modal-confirm');
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Helper: Format Currency Number
+        function formatMoney(amount) {
+            return Number(amount).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Helper: Escape HTML string to prevent XSS
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/&/g, "&amp;")
+                       .replace(/</g, "&lt;")
+                       .replace(/>/g, "&gt;")
+                       .replace(/"/g, "&quot;")
+                       .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

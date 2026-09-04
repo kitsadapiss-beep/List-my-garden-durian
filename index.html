@@ -3,29 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการและติดตามสถานะงานในสวน</title>
+    <title>ระบบจัดการและติดตามสถานะงานในสวน (Classic Blue Palette)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Prompt -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Kanit Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            dark: '#1e3a1e',
-                            primary: '#2d5a27',
-                            accent: '#8fc0a9',
-                            light: '#e8f1f2',
-                            bg: '#f3f6f4',
-                            card: '#ffffff'
+                        soft: {
+                            bg: '#f0f5fc',        /* Soft Light Blue Background */
+                            card: '#ffffff',
+                            textDark: '#06172E',   /* Midnight */
+                            textMuted: '#58A1D3',  /* Blue Gray */
+                            primary: '#0F4C81',    /* Classic Blue Accent */
+                            primaryLight: '#B3DEF8',/* Powder Blue */
+                            accentGreen: '#10b981',
+                            accentGreenLight: '#d1fae5',
+                            accentRose: '#f43f5e',
+                            accentRoseLight: '#ffe4e6',
+                            border: '#dbeafe'
                         }
                     },
                     fontFamily: {
-                        prompt: ['Prompt', 'sans-serif']
+                        sans: ['Kanit', 'sans-serif'],
+                        kawaii: ['Kanit', 'sans-serif']
                     }
                 }
             }
@@ -33,165 +39,225 @@
     </script>
     <style>
         body {
-            font-family: 'Prompt', sans-serif;
-            background-color: #f3f6f4;
+            font-family: 'Kanit', sans-serif;
+            background-color: #f0f5fc;
             -webkit-tap-highlight-color: transparent;
         }
+
+        /* Modern Soft UI Cards & Buttons */
+        .soft-card {
+            background-color: #ffffff;
+            border: 1px solid #e0e7ff;
+            box-shadow: 0 10px 25px -5px rgba(15, 76, 129, 0.06), 0 8px 10px -6px rgba(15, 76, 129, 0.02);
+            border-radius: 24px;
+        }
+
+        .soft-card-sm {
+            background-color: #ffffff;
+            border: 1px solid #e0e7ff;
+            box-shadow: 0 4px 12px rgba(15, 76, 129, 0.04);
+            border-radius: 18px;
+        }
+
+        .soft-btn {
+            border-radius: 16px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(15, 76, 129, 0.08);
+        }
+
+        .soft-btn:active {
+            transform: scale(0.97);
+        }
+
+        .soft-badge {
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #e8f1f2;
+            background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: #8fc0a9;
-            border-radius: 4px;
+            background: #93c5fd;
+            border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #2d5a27;
+            background: #3b82f6;
         }
+
         .dragging {
             opacity: 0.5;
-            scale: 0.95;
+            transform: scale(0.96);
         }
-        /* Hide scrollbar for Chrome, Safari and Opera */
+
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
-        /* Hide scrollbar for IE, Edge and Firefox */
         .no-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        @keyframes floatSmooth {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-float {
+            animation: floatSmooth 4s ease-in-out infinite;
         }
     </style>
 </head>
-<body class="text-gray-800 antialiased min-h-screen flex flex-col pb-20 md:pb-0">
+<body class="text-soft-textDark antialiased min-h-screen flex flex-col pb-24 md:pb-8">
 
-    <!-- ================= TOP NAVIGATION BAR (PC & MOBILE) ================= -->
-    <header class="w-full bg-brand-dark text-white px-4 py-3 shadow-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+    <!-- ================= TOP NAVIGATION BAR (BLUE PALETTE MINIMALIST) ================= -->
+    <header class="w-full bg-white/90 backdrop-blur-md border-b border-blue-100 px-4 md:px-8 py-4 sticky top-0 z-40 shadow-xs">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             
-            <!-- Left Side: App Brand / Logo -->
+            <!-- Left Side: App Brand / User Greeting -->
             <div class="flex items-center justify-between w-full md:w-auto">
-                <div class="flex items-center gap-2.5">
-                    <div class="bg-brand-accent/20 text-brand-accent p-2 rounded-xl flex items-center justify-center">
-                        <i class="fa-solid fa-seedling text-lg"></i>
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-[#B3DEF8] text-[#0F4C81] flex items-center justify-center text-lg font-bold shadow-sm">
+                        <i class="fa-solid fa-seedling"></i>
                     </div>
                     <div>
-                        <h1 class="font-bold text-sm md:text-base leading-none">Smart Garden</h1>
-                        <p class="text-[10px] text-green-300">ระบบติดตามและบันทึกงานสวน</p>
+                        <h1 class="font-bold text-base md:text-lg leading-tight text-[#06172E] flex items-center gap-1.5">
+                            สวนของฉัน <span class="text-xs bg-[#B3DEF8] text-[#0F4C81] px-2 py-0.5 rounded-full font-bold">Smart</span>
+                        </h1>
+                        <p class="text-xs text-[#58A1D3] font-medium">บันทึกและติดตามสถานะงานในสวน</p>
                     </div>
                 </div>
 
                 <!-- Add Garden Button (Mobile Only) -->
-                <button onclick="openAddGardenModal()" class="md:hidden text-xs bg-brand-accent text-brand-dark px-3 py-1.5 rounded-xl font-semibold hover:bg-white transition flex items-center gap-1 shadow-xs">
+                <button onclick="openAddGardenModal()" class="md:hidden soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-3.5 py-2 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-200">
                     <i class="fa-solid fa-plus text-xs"></i> เพิ่มสวน
                 </button>
             </div>
             
-            <!-- Center: Garden Selector Tabs (Draggable on PC) -->
+            <!-- Center: Garden Selector Pills -->
             <div class="flex items-center justify-center overflow-hidden flex-1 w-full md:w-auto">
-                <div id="garden-list-container" class="flex items-center justify-start md:justify-center gap-2 overflow-x-auto py-1 px-1 w-full select-none no-scrollbar">
+                <div id="garden-list-container" class="flex items-center justify-start md:justify-center gap-2.5 overflow-x-auto py-1 px-1 w-full select-none no-scrollbar">
                     <!-- Dynamic Garden Pills Rendered Here -->
                 </div>
             </div>
 
             <!-- Right Side: Add Garden Button (PC Only) -->
-            <button onclick="openAddGardenModal()" class="hidden md:flex shrink-0 text-xs bg-brand-accent text-brand-dark px-3.5 py-2 rounded-xl font-semibold hover:bg-white transition items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-plus text-xs"></i> เพิ่มสวนใหม่
+            <button onclick="openAddGardenModal()" class="hidden md:flex shrink-0 soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-4 py-2.5 font-bold text-xs items-center gap-2 shadow-md shadow-blue-200">
+                <i class="fa-solid fa-plus text-xs"></i> เพิ่มสวนใหม่ ✨
             </button>
 
         </div>
     </header>
 
     <!-- ================= MAIN CONTENT AREA ================= -->
-    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6">
         
-        <!-- Active Garden Header Header -->
-        <div id="active-garden-header" class="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-gray-100 mb-6 flex flex-wrap justify-between items-center gap-4">
-            <div>
-                <span class="bg-emerald-100 text-emerald-800 text-[11px] md:text-xs px-3 py-1 rounded-full font-medium mb-1.5 inline-block">
-                    <i class="fa-solid fa-location-dot mr-1"></i> สวนที่กำลังจัดการ
-                </span>
-                <h2 id="garden-title" class="text-xl md:text-2xl font-bold text-gray-800">กรุณาเลือกหรือสร้างสวน</h2>
-                <p id="garden-desc" class="text-xs md:text-sm text-gray-500 mt-0.5">รายละเอียดและภาพรวมการดำเนินงาน</p>
+        <!-- Top Bar: Modern Soft Clock Widget Centered and Full Width -->
+        <div class="flex items-center justify-center">
+            <div class="w-full soft-card px-6 py-4 flex flex-col md:flex-row items-center justify-center gap-4 bg-white shadow-xs border border-blue-100 select-none text-center">
+                <div class="flex items-center gap-2.5 text-[#0F4C81] font-bold text-sm md:text-base">
+                    <i class="fa-regular fa-calendar-days text-[#58A1D3] text-lg"></i>
+                    <span>วันที่ปัจจุบัน:</span>
+                    <span id="thai-widget-day" class="bg-[#B3DEF8]/40 px-2.5 py-1 rounded-xl text-[#06172E]">00</span> 
+                    <span id="thai-widget-month" class="bg-[#B3DEF8]/40 px-2.5 py-1 rounded-xl text-[#06172E]">---</span> 
+                    <span id="thai-widget-year" class="bg-[#B3DEF8]/40 px-2.5 py-1 rounded-xl text-[#06172E]">พ.ศ. ----</span>
+                </div>
+                <div class="hidden md:block w-px h-6 bg-blue-100"></div>
+                <div class="flex items-center gap-2.5 text-[#06172E] font-bold text-sm md:text-base">
+                    <i class="fa-regular fa-clock text-[#58A1D3] text-lg"></i>
+                    <span>เวลา:</span>
+                    <span id="thai-widget-time" class="bg-[#B3DEF8]/40 px-3 py-1 rounded-xl text-[#0F4C81]">00:00:00</span>
+                    <span class="text-xs text-[#58A1D3]">น.</span>
+                </div>
             </div>
-            <div class="flex items-center gap-2" id="header-actions">
-                <!-- Actions like move position & delete garden rendered here -->
+        </div>
+
+        <!-- Active Garden Header Card -->
+        <div id="active-garden-header" class="soft-card p-6 md:p-8 flex flex-wrap justify-between items-center gap-4 bg-gradient-to-br from-white to-[#B3DEF8]/20">
+            <div>
+                <h2 id="garden-title" class="text-xl md:text-2xl font-bold text-[#06172E] flex items-center gap-2.5">
+                    <span>กรุณาเลือกหรือสร้างสวน</span> <i class="fa-solid fa-seedling text-[#0F4C81]"></i>
+                </h2>
+                <p id="garden-desc" class="text-xs md:text-sm text-[#58A1D3] mt-1 font-medium">รายละเอียดและภาพรวมการดำเนินงานในสวนของคุณ</p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap" id="header-actions">
+                <!-- Header Actions rendered here -->
             </div>
         </div>
 
         <!-- Dashboard Content Grid -->
         <div id="dashboard-content" class="space-y-6 hidden">
             
-            <!-- Top Summary Cards (3 Columns) -->
-            <div class="grid grid-cols-3 gap-3 md:gap-4">
-                <div class="bg-white p-3.5 md:p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center gap-2 md:gap-4 text-center md:text-left">
-                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-base md:text-lg font-bold border border-rose-100 shrink-0">
+            <!-- Top Summary Cards -->
+            <div class="grid grid-cols-3 gap-3 md:gap-5">
+                <div class="soft-card bg-rose-50/50 border-rose-100 p-4 md:p-5 flex flex-col md:flex-row items-center gap-3 text-center md:text-left">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-500 text-white flex items-center justify-center text-base md:text-lg font-bold shrink-0 shadow-md shadow-rose-200">
                         <i class="fa-solid fa-hourglass-start"></i>
                     </div>
                     <div>
-                        <p class="text-[11px] md:text-xs text-gray-500 font-medium">งานยังไม่ทำ</p>
-                        <h3 id="stat-todo" class="text-base md:text-xl font-bold text-gray-800">0</h3>
+                        <p class="text-[11px] md:text-xs font-semibold text-rose-600">ยังไม่ทำ</p>
+                        <h3 id="stat-todo" class="text-base md:text-xl font-bold text-gray-800 mt-0.5">0</h3>
                     </div>
                 </div>
 
-                <div class="bg-white p-3.5 md:p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center gap-2 md:gap-4 text-center md:text-left">
-                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-base md:text-lg font-bold border border-amber-100 shrink-0">
+                <div class="soft-card bg-[#B3DEF8]/30 border-blue-200 p-4 md:p-5 flex flex-col md:flex-row items-center gap-3 text-center md:text-left">
+                    <div class="w-12 h-12 rounded-2xl bg-[#58A1D3] text-white flex items-center justify-center text-base md:text-lg font-bold shrink-0 shadow-md shadow-blue-200">
                         <i class="fa-solid fa-arrows-spin fa-spin"></i>
                     </div>
                     <div>
-                        <p class="text-[11px] md:text-xs text-gray-500 font-medium">งานกำลังทำ</p>
-                        <h3 id="stat-doing" class="text-base md:text-xl font-bold text-gray-800">0</h3>
+                        <p class="text-[11px] md:text-xs font-semibold text-[#0F4C81]">กำลังทำ</p>
+                        <h3 id="stat-doing" class="text-base md:text-xl font-bold text-[#06172E] mt-0.5">0</h3>
                     </div>
                 </div>
 
-                <div class="bg-white p-3.5 md:p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center gap-2 md:gap-4 text-center md:text-left">
-                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base md:text-lg font-bold border border-emerald-100 shrink-0">
+                <div class="soft-card bg-emerald-50/50 border-emerald-100 p-4 md:p-5 flex flex-col md:flex-row items-center gap-3 text-center md:text-left">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-base md:text-lg font-bold shrink-0 shadow-md shadow-emerald-200">
                         <i class="fa-solid fa-circle-check"></i>
                     </div>
                     <div>
-                        <p class="text-[11px] md:text-xs text-gray-500 font-medium">งานเสร็จแล้ว</p>
-                        <h3 id="stat-done" class="text-base md:text-xl font-bold text-gray-800">0</h3>
+                        <p class="text-[11px] md:text-xs font-semibold text-emerald-600">เสร็จแล้ว</p>
+                        <h3 id="stat-done" class="text-base md:text-xl font-bold text-gray-800 mt-0.5">0</h3>
                     </div>
                 </div>
             </div>
 
-            <!-- MOBILE TAB VIEW SWITCHER (Visible on Mobile only) -->
-            <div class="md:hidden flex bg-gray-200/80 p-1 rounded-2xl gap-1 text-xs font-medium">
-                <button onclick="switchMobileTab('tasks')" id="mtab-btn-tasks" class="flex-1 py-2 rounded-xl text-center transition bg-white text-brand-dark font-bold shadow-xs">
-                    <i class="fa-solid fa-list-check mr-1"></i> ขั้นตอนงาน
+            <!-- MOBILE TAB VIEW SWITCHER -->
+            <div class="md:hidden flex bg-white p-1.5 border border-blue-100 rounded-2xl gap-1 text-xs font-bold shadow-sm">
+                <button onclick="switchMobileTab('tasks')" id="mtab-btn-tasks" class="flex-1 py-2.5 rounded-xl text-center transition bg-[#0F4C81] text-white shadow-sm">
+                    <i class="fa-solid fa-list-check mr-1"></i> ขั้นตอน
                 </button>
-                <button onclick="switchMobileTab('items')" id="mtab-btn-items" class="flex-1 py-2 rounded-xl text-center transition text-gray-600">
-                    <i class="fa-solid fa-boxes-packing mr-1"></i> สิ่งที่ต้องใช้
+                <button onclick="switchMobileTab('items')" id="mtab-btn-items" class="flex-1 py-2.5 rounded-xl text-center transition text-[#58A1D3]">
+                    <i class="fa-solid fa-boxes-packing mr-1"></i> สิ่งของ
                 </button>
-                <button onclick="switchMobileTab('finance')" id="mtab-btn-finance" class="flex-1 py-2 rounded-xl text-center transition text-gray-600">
-                    <i class="fa-solid fa-wallet mr-1"></i> บัญชีการเงิน
+                <button onclick="switchMobileTab('finance')" id="mtab-btn-finance" class="flex-1 py-2.5 rounded-xl text-center transition text-[#58A1D3]">
+                    <i class="fa-solid fa-wallet mr-1"></i> บัญชี
                 </button>
             </div>
 
-            <!-- MAIN CONTENT PANELS (PC Layout Grid / Mobile Responsive Swapper) -->
+            <!-- MAIN CONTENT PANELS -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
                 <!-- Left Column (7 Cols on PC) : Tasks & Required Items -->
                 <div class="lg:col-span-7 space-y-6">
                     
                     <!-- Task Management Panel -->
-                    <div id="panel-tasks" class="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-gray-100 block">
-                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+                    <div id="panel-tasks" class="soft-card p-6 block">
+                        <div class="flex justify-between items-center mb-5 pb-3 border-b border-blue-50">
                             <div>
-                                <h3 class="font-bold text-base md:text-lg text-gray-800 flex items-center gap-2">
-                                    <i class="fa-solid fa-list-check text-brand-primary"></i> ขั้นตอนการทำงานในสวน
+                                <h3 class="font-bold text-base md:text-lg text-[#06172E] flex items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-[#0F4C81]"></i> ขั้นตอนการทำงานในสวน
                                 </h3>
-                                <p class="text-xs text-gray-500">บันทึกและติดตามสถานะงาน</p>
+                                <p class="text-xs text-[#58A1D3]">บันทึกและติดตามสถานะภารกิจรายวัน</p>
                             </div>
-                            <div class="flex items-center gap-1.5 md:gap-2">
-                                <button onclick="confirmResetTasks()" class="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 px-2 py-1.5 md:px-2.5 md:py-1.5 rounded-xl transition font-medium flex items-center gap-1">
-                                    <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline">รีเซ็ตขั้นตอน</span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="confirmResetTasks()" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-2.5 py-1.5 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline">รีเซ็ต</span>
                                 </button>
-                                <button onclick="openAddTaskModal()" class="bg-brand-primary text-white text-xs px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-xl hover:bg-brand-dark transition font-medium flex items-center gap-1 shadow-xs">
+                                <button onclick="openAddTaskModal()" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white text-xs px-3 py-1.5 font-bold flex items-center gap-1 shadow-sm shadow-blue-200">
                                     <i class="fa-solid fa-plus"></i> เพิ่มงาน
                                 </button>
                             </div>
@@ -204,26 +270,26 @@
                     </div>
 
                     <!-- Required Items Panel -->
-                    <div id="panel-items" class="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-gray-100 block">
-                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+                    <div id="panel-items" class="soft-card p-6 block">
+                        <div class="flex justify-between items-center mb-5 pb-3 border-b border-blue-50">
                             <div>
-                                <h3 class="font-bold text-base md:text-lg text-gray-800 flex items-center gap-2">
-                                    <i class="fa-solid fa-boxes-packing text-amber-600"></i> สิ่งที่ต้องใช้ในสวน
+                                <h3 class="font-bold text-base md:text-lg text-[#06172E] flex items-center gap-2">
+                                    <i class="fa-solid fa-boxes-packing text-[#58A1D3]"></i> สิ่งที่ต้องใช้ในสวน
                                 </h3>
-                                <p class="text-xs text-gray-500">ปุ๋ย ยา อุปกรณ์</p>
+                                <p class="text-xs text-[#58A1D3]">ปุ๋ย ยา และอุปกรณ์การเกษตร</p>
                             </div>
-                            <div class="flex items-center gap-1.5 md:gap-2">
-                                <button onclick="confirmResetItems()" class="text-xs bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 px-2 py-1.5 md:px-2.5 md:py-1.5 rounded-xl transition font-medium flex items-center gap-1">
-                                    <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline">รีเซ็ตสิ่งของ</span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="confirmResetItems()" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-2.5 py-1.5 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline">รีเซ็ต</span>
                                 </button>
-                                <button onclick="openAddItemModal()" class="bg-amber-600 text-white text-xs px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-xl hover:bg-amber-700 transition font-medium flex items-center gap-1 shadow-xs">
+                                <button onclick="openAddItemModal()" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white text-xs px-3 py-1.5 font-bold flex items-center gap-1 shadow-sm shadow-blue-200">
                                     <i class="fa-solid fa-plus"></i> เพิ่มสิ่งของ
                                 </button>
                             </div>
                         </div>
 
                         <!-- Items List Container -->
-                        <div id="item-list" class="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+                        <div id="item-list" class="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
                             <!-- Items dynamic -->
                         </div>
                     </div>
@@ -232,51 +298,51 @@
 
                 <!-- Right Column (5 Cols on PC) : Finance Summary Panel -->
                 <div id="panel-finance" class="lg:col-span-5 block">
-                    <div class="bg-white rounded-2xl p-5 md:p-6 shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+                    <div class="soft-card p-6">
+                        <div class="flex justify-between items-center mb-5 pb-3 border-b border-blue-50">
                             <div>
-                                <h3 class="font-bold text-base md:text-lg text-gray-800 flex items-center gap-2">
+                                <h3 class="font-bold text-base md:text-lg text-[#06172E] flex items-center gap-2">
                                     <i class="fa-solid fa-wallet text-emerald-600"></i> สรุปรายรับ - รายจ่าย
                                 </h3>
-                                <p class="text-xs text-gray-500">การเงินเฉพาะสวนนี้</p>
+                                <p class="text-xs text-[#58A1D3]">บัญชีการเงินเฉพาะสวนนี้</p>
                             </div>
-                            <button onclick="confirmResetFinance()" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 px-2.5 py-1.5 rounded-xl transition font-medium flex items-center gap-1">
-                                <i class="fa-solid fa-rotate-left"></i> รีเซ็ตบัญชี
+                            <button onclick="confirmResetFinance()" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-2.5 py-1.5 font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-left"></i> รีเซ็ต
                             </button>
                         </div>
 
                         <!-- Net Balance Card -->
-                        <div class="bg-slate-800 text-white p-4 rounded-xl mb-4 text-center relative overflow-hidden shadow-inner">
-                            <span class="text-xs text-slate-300 font-medium">กำไร / ขาดทุน สุทธิ</span>
-                            <div id="net-balance" class="text-2xl font-bold mt-1 text-emerald-400">0.00 ฿</div>
+                        <div class="soft-card-sm bg-gradient-to-r from-[#0F4C81] to-[#022C50] text-white p-5 mb-5 text-center relative overflow-hidden shadow-md shadow-blue-200">
+                            <span class="text-xs text-[#B3DEF8] font-semibold block mb-1">💰 กำไร / ขาดทุน สุทธิ</span>
+                            <div id="net-balance" class="text-xl md:text-2xl font-bold tracking-wide">0.00 ฿</div>
                         </div>
 
                         <!-- Income & Expense Totals -->
                         <div class="grid grid-cols-2 gap-3 mb-5">
-                            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-                                <span class="text-[11px] text-emerald-700 font-medium block"><i class="fa-solid fa-arrow-down-left mr-1"></i> รายรับรวม</span>
-                                <span id="total-income" class="text-sm md:text-base font-bold text-emerald-600">0.00 ฿</span>
+                            <div class="soft-card-sm bg-emerald-50/60 p-3.5 border-emerald-100">
+                                <span class="text-[11px] text-emerald-700 font-semibold block mb-0.5"><i class="fa-solid fa-arrow-down-left mr-1"></i> รายรับรวม</span>
+                                <span id="total-income" class="text-xs md:text-sm font-bold text-emerald-800">0.00 ฿</span>
                             </div>
-                            <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
-                                <span class="text-[11px] text-rose-700 font-medium block"><i class="fa-solid fa-arrow-up-right mr-1"></i> รายจ่ายรวม</span>
-                                <span id="total-expense" class="text-sm md:text-base font-bold text-rose-600">0.00 ฿</span>
+                            <div class="soft-card-sm bg-rose-50/60 p-3.5 border-rose-100">
+                                <span class="text-[11px] text-rose-700 font-semibold block mb-0.5"><i class="fa-solid fa-arrow-up-right mr-1"></i> รายจ่ายรวม</span>
+                                <span id="total-expense" class="text-xs md:text-sm font-bold text-rose-800">0.00 ฿</span>
                             </div>
                         </div>
 
                         <!-- Add Finance Buttons -->
-                        <div class="flex gap-2 mb-4">
-                            <button onclick="openAddFinanceModal('income')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs py-2.5 rounded-xl font-medium transition flex items-center justify-center gap-1 shadow-xs">
+                        <div class="flex gap-2.5 mb-5">
+                            <button onclick="openAddFinanceModal('income')" class="flex-1 soft-btn bg-emerald-500 hover:bg-emerald-600 text-white text-xs py-2.5 font-bold flex items-center justify-center gap-1 shadow-sm shadow-emerald-200">
                                 <i class="fa-solid fa-plus-circle"></i> เพิ่มรายรับ
                             </button>
-                            <button onclick="openAddFinanceModal('expense')" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white text-xs py-2.5 rounded-xl font-medium transition flex items-center justify-center gap-1 shadow-xs">
+                            <button onclick="openAddFinanceModal('expense')" class="flex-1 soft-btn bg-rose-500 hover:bg-rose-600 text-white text-xs py-2.5 font-bold flex items-center justify-center gap-1 shadow-sm shadow-rose-200">
                                 <i class="fa-solid fa-minus-circle"></i> เพิ่มรายจ่าย
                             </button>
                         </div>
 
                         <!-- Transactions History List -->
-                        <div class="border-t border-gray-100 pt-3">
-                            <h4 class="text-xs font-semibold text-gray-500 mb-2">ประวัติบันทึกทางการเงิน</h4>
-                            <div id="finance-list" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                        <div class="border-t border-blue-50 pt-4">
+                            <h4 class="text-xs font-bold text-[#58A1D3] mb-3">📜 ประวัติบันทึกทางการเงิน</h4>
+                            <div id="finance-list" class="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
                                 <!-- Finance transactions dynamic -->
                             </div>
                         </div>
@@ -289,159 +355,165 @@
         </div>
 
         <!-- Empty State (No Garden Selected) -->
-        <div id="empty-state" class="bg-white rounded-2xl p-8 md:p-12 text-center shadow-sm border border-gray-100 my-auto">
-            <div class="w-16 h-16 md:w-20 md:h-20 bg-green-50 text-brand-primary rounded-full flex items-center justify-center mx-auto text-2xl md:text-3xl mb-4">
+        <div id="empty-state" class="soft-card p-10 md:p-16 text-center my-auto animate-float">
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-[#B3DEF8] text-[#0F4C81] rounded-3xl flex items-center justify-center mx-auto text-2xl md:text-3xl mb-4 shadow-sm">
                 <i class="fa-solid fa-tree"></i>
             </div>
-            <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">ยินดีต้อนรับสู่ระบบจัดการสวน</h3>
-            <p class="text-xs md:text-sm text-gray-500 max-w-md mx-auto mb-6">เริ่มต้นการใช้งานโดยการสร้างสวนใหม่ของคุณ (เช่น สวนที่ 1, สวนผลไม้, สวนผักครัวเรือน)</p>
-            <button onclick="openAddGardenModal()" class="bg-brand-primary text-white px-5 py-2.5 rounded-xl text-xs md:text-sm font-medium hover:bg-brand-dark transition inline-flex items-center gap-2 shadow-md">
-                <i class="fa-solid fa-plus"></i> เพิ่มสวนแรกของคุณ
+            <h3 class="text-lg md:text-xl font-bold text-[#06172E] mb-2">ยินดีต้อนรับสู่ Smart Garden ✨</h3>
+            <p class="text-xs md:text-sm text-[#58A1D3] max-w-md mx-auto mb-6 font-medium">เริ่มต้นการใช้งานโดยกดเพิ่มสวนใหม่ของคุณ (เช่น สวนที่ 1, สวนทุเรียน, สวนผักออร์แกนิก)</p>
+            <button onclick="openAddGardenModal()" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-6 py-3 text-xs md:text-sm font-bold inline-flex items-center gap-2 shadow-md shadow-blue-200">
+                <i class="fa-solid fa-plus"></i> เพิ่มสวนแรกของคุณ ✨
             </button>
         </div>
 
     </main>
 
     <!-- MOBILE BOTTOM NAVIGATION BAR -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40 flex justify-around items-center shadow-lg">
-        <button onclick="switchMobileTab('tasks')" id="mnav-tasks" class="flex flex-col items-center gap-0.5 text-brand-primary">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-blue-100 px-4 py-2.5 z-40 flex justify-around items-center shadow-lg">
+        <button onclick="switchMobileTab('tasks')" id="mnav-tasks" class="flex flex-col items-center gap-1 text-[#0F4C81] font-bold">
             <i class="fa-solid fa-list-check text-base"></i>
-            <span class="text-[10px] font-medium">ขั้นตอน</span>
+            <span class="text-[10px]">ขั้นตอน</span>
         </button>
-        <button onclick="switchMobileTab('items')" id="mnav-items" class="flex flex-col items-center gap-0.5 text-gray-400">
+        <button onclick="switchMobileTab('items')" id="mnav-items" class="flex flex-col items-center gap-1 text-[#58A1D3]">
             <i class="fa-solid fa-boxes-packing text-base"></i>
-            <span class="text-[10px] font-medium">สิ่งที่ต้องใช้</span>
+            <span class="text-[10px]">สิ่งของ</span>
         </button>
-        <button onclick="switchMobileTab('finance')" id="mnav-finance" class="flex flex-col items-center gap-0.5 text-gray-400">
+        <button onclick="switchMobileTab('finance')" id="mnav-finance" class="flex flex-col items-center gap-1 text-[#58A1D3]">
             <i class="fa-solid fa-wallet text-base"></i>
-            <span class="text-[10px] font-medium">การเงิน</span>
+            <span class="text-[10px]">การเงิน</span>
         </button>
     </nav>
 
     <!-- Footer (PC Only) -->
-    <footer class="hidden md:block py-3 text-center text-xs text-gray-400 bg-white border-t border-gray-100">
-        <p><i class="fa-solid fa-leaf text-brand-primary mr-1"></i> วางแผนและติดตามสถานะงานสวนอย่างง่ายดาย</p>
+    <footer class="hidden md:block py-4 text-center text-xs font-bold text-[#58A1D3] bg-white border-t border-blue-50">
+        <p>✨ Smart Garden Blue Palette UI - วางแผนและจัดการสวนสไตล์โมเดิร์น ✨</p>
     </footer>
 
     <!-- ================= MODALS ================= -->
 
     <!-- Modal 1: Add Garden -->
-    <div id="modal-add-garden" class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">เพิ่มสวนใหม่</h3>
+    <div id="modal-add-garden" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+        <div class="soft-card bg-white max-w-md w-full p-6 md:p-8 relative shadow-2xl">
+            <h3 class="text-base md:text-lg font-bold text-[#06172E] mb-4 flex items-center gap-2">
+                ✨ เพิ่มสวนใหม่
+            </h3>
             <form onsubmit="handleAddGarden(event)">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อสวน *</label>
-                        <input type="text" id="garden-name-input" required placeholder="เช่น สวนที่ 1, สวนทุเรียน" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">ชื่อสวน *</label>
+                        <input type="text" id="garden-name-input" required placeholder="เช่น สวนที่ 1, สวนสตรอว์เบอร์รี" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">คำอธิบายเพิ่มเติม</label>
-                        <textarea id="garden-desc-input" rows="2" placeholder="รายละเอียด เช่น ขนาดพื้นที่, ประเภทพืช..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"></textarea>
+                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">คำอธิบายเพิ่มเติม</label>
+                        <textarea id="garden-desc-input" rows="2" placeholder="รายละเอียดเพิ่มเติม..." class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30"></textarea>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('modal-add-garden')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl">ยกเลิก</button>
-                    <button type="submit" class="px-4 py-2 text-sm bg-brand-primary text-white rounded-xl hover:bg-brand-dark font-medium">บันทึก</button>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('modal-add-garden')" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-2.5 text-xs font-bold">ยกเลิก</button>
+                    <button type="submit" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-5 py-2.5 text-xs font-bold shadow-sm shadow-blue-200">บันทึก</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Modal 2: Add Task -->
-    <div id="modal-add-task" class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">เพิ่มขั้นตอนการทำงาน</h3>
+    <div id="modal-add-task" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+        <div class="soft-card bg-white max-w-md w-full p-6 md:p-8 relative shadow-2xl">
+            <h3 class="text-base md:text-lg font-bold text-[#06172E] mb-4 flex items-center gap-2">
+                📝 เพิ่มขั้นตอนการทำงาน
+            </h3>
             <form onsubmit="handleAddTask(event)">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อขั้นตอน/งาน *</label>
-                        <input type="text" id="task-title-input" required placeholder="เช่น ใส่ปุ๋ยรอบที่ 1, พรวนดิน" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">ชื่อขั้นตอน/งาน *</label>
+                        <input type="text" id="task-title-input" required placeholder="เช่น ใส่ปุ๋ยคอก, รดน้ำผัก" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">สถานะเริ่มต้น</label>
-                        <select id="task-status-input" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">สถานะเริ่มต้น</label>
+                        <select id="task-status-input" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                             <option value="todo">🔴 ยังไม่ทำ</option>
                             <option value="doing">🟡 กำลังทำ</option>
                             <option value="done">🟢 เสร็จแล้ว</option>
                         </select>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('modal-add-task')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl">ยกเลิก</button>
-                    <button type="submit" class="px-4 py-2 text-sm bg-brand-primary text-white rounded-xl hover:bg-brand-dark font-medium">บันทึกงาน</button>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('modal-add-task')" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-2.5 text-xs font-bold">ยกเลิก</button>
+                    <button type="submit" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-5 py-2.5 text-xs font-bold shadow-sm shadow-blue-200">บันทึกงาน</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Modal 3: Add Required Item -->
-    <div id="modal-add-item" class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">เพิ่มสิ่งของที่ต้องใช้</h3>
+    <div id="modal-add-item" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+        <div class="soft-card bg-white max-w-md w-full p-6 md:p-8 relative shadow-2xl">
+            <h3 class="text-base md:text-lg font-bold text-[#06172E] mb-4 flex items-center gap-2">
+                📦 เพิ่มสิ่งของที่ต้องใช้
+            </h3>
             <form onsubmit="handleAddItem(event)">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อสิ่งของ / อุปกรณ์ *</label>
-                        <input type="text" id="item-name-input" required placeholder="เช่น ปุ๋ยคอก, เมล็ดพันธุ์ผัก" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">ชื่อสิ่งของ / อุปกรณ์ *</label>
+                        <input type="text" id="item-name-input" required placeholder="เช่น ปุ๋ยหมัก, กรรไกร" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">จำนวน/หน่วย *</label>
-                            <input type="text" id="item-qty-input" required placeholder="เช่น 2 กระสอบ" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">จำนวน/หน่วย *</label>
+                            <input type="text" id="item-qty-input" required placeholder="เช่น 2 ถุง" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">ราคาประเมิน (บาท)</label>
-                            <input type="number" step="0.01" id="item-cost-input" placeholder="0.00" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">ราคาประเมิน (บาท)</label>
+                            <input type="number" step="0.01" id="item-cost-input" placeholder="0.00" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                         </div>
                     </div>
-                    <p class="text-[11px] text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-100">
-                        <i class="fa-solid fa-circle-info mr-1"></i> หากกรอกราคาประเมิน ระบบจะบันทึกเป็นรายจ่ายให้อัตโนมัติ
+                    <p class="text-[11px] font-semibold text-[#0F4C81] bg-[#B3DEF8]/30 p-3 rounded-xl border border-blue-200">
+                        💡 หากกรอกราคาประเมิน ระบบจะบันทึกเป็นรายจ่ายให้อัตโนมัติ
                     </p>
                 </div>
-                <div class="mt-6 flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('modal-add-item')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl">ยกเลิก</button>
-                    <button type="submit" class="px-4 py-2 text-sm bg-amber-600 text-white rounded-xl hover:bg-amber-700 font-medium">เพิ่มสิ่งของ</button>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('modal-add-item')" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-2.5 text-xs font-bold">ยกเลิก</button>
+                    <button type="submit" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-5 py-2.5 text-xs font-bold shadow-sm shadow-blue-200">เพิ่มสิ่งของ</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Modal 4: Add Finance Entry -->
-    <div id="modal-add-finance" class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-            <h3 id="finance-modal-title" class="text-lg font-bold text-gray-800 mb-4">บันทึกการเงิน</h3>
+    <div id="modal-add-finance" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+        <div class="soft-card bg-white max-w-md w-full p-6 md:p-8 relative shadow-2xl">
+            <h3 id="finance-modal-title" class="text-base md:text-lg font-bold text-[#06172E] mb-4">บันทึกการเงิน</h3>
             <form onsubmit="handleAddFinance(event)">
                 <input type="hidden" id="finance-type-input">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">รายการ *</label>
-                        <input type="text" id="finance-title-input" required placeholder="เช่น ขายผลผลิต, ซื้อยาฆ่าแมลง" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">รายการ *</label>
+                        <input type="text" id="finance-title-input" required placeholder="เช่น ขายผลผลิต, ซื้อยา" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">จำนวนเงิน (บาท) *</label>
-                        <input type="number" step="0.01" min="0" id="finance-amount-input" required placeholder="0.00" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">จำนวนเงิน (บาท) *</label>
+                        <input type="number" step="0.01" min="0" id="finance-amount-input" required placeholder="0.00" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                     </div>
                 </div>
-                <div class="mt-6 flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('modal-add-finance')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-xl">ยกเลิก</button>
-                    <button type="submit" id="finance-submit-btn" class="px-4 py-2 text-sm text-white rounded-xl font-medium">บันทึก</button>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('modal-add-finance')" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-2.5 text-xs font-bold">ยกเลิก</button>
+                    <button type="submit" id="finance-submit-btn" class="soft-btn text-xs px-5 py-2.5 font-bold text-white shadow-sm">บันทึก</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Modal 5: Custom Confirm Dialog -->
-    <div id="modal-confirm" class="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
-            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl mb-3">
+    <div id="modal-confirm" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+        <div class="soft-card bg-white max-w-sm w-full p-6 md:p-8 text-center shadow-2xl">
+            <div class="w-14 h-14 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto text-xl mb-4 shadow-sm">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 id="confirm-title" class="font-bold text-gray-800 text-base mb-1">ยืนยันการทำรายการ</h3>
-            <p id="confirm-message" class="text-xs text-gray-500 mb-6">คุณแน่ใจหรือไม่ที่ต้องการทำรายการนี้?</p>
-            <div class="flex gap-2">
-                <button type="button" onclick="closeModal('modal-confirm')" class="flex-1 py-2 text-sm border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50">ยกเลิก</button>
-                <button type="button" id="confirm-action-btn" class="flex-1 py-2 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium">ยืนยัน</button>
+            <h3 id="confirm-title" class="font-bold text-[#06172E] text-base mb-1.5">ยืนยันการทำรายการ</h3>
+            <p id="confirm-message" class="text-xs text-[#58A1D3] mb-6">คุณแน่ใจหรือไม่ที่จะทำรายการนี้?</p>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-confirm')" class="flex-1 soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 text-xs font-bold">ยกเลิก</button>
+                <button type="button" id="confirm-action-btn" class="flex-1 soft-btn bg-rose-500 hover:bg-rose-600 text-white py-2.5 text-xs font-bold shadow-sm shadow-rose-200">ยืนยัน</button>
             </div>
         </div>
     </div>
@@ -452,7 +524,7 @@
         let gardens = [];
         let activeGardenId = null;
         let draggedIndex = null;
-        let currentMobileTab = 'tasks'; // 'tasks', 'items', 'finance'
+        let currentMobileTab = 'tasks';
 
         document.addEventListener('DOMContentLoaded', () => {
             loadSampleData();
@@ -464,16 +536,53 @@
                 renderEmptyState();
             }
 
-            // Sync Mobile Tab state and Layout Panels
             switchMobileTab(currentMobileTab);
+            startThailandClock();
         });
+
+        // Real-time Thailand Clock & Date
+        function startThailandClock() {
+            const thaiMonthsShort = [
+                'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+                'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+            ];
+
+            function updateClock() {
+                const now = new Date();
+                const options = { timeZone: 'Asia/Bangkok' };
+                const bkkDateStr = now.toLocaleString('en-US', options);
+                const bkkDate = new Date(bkkDateStr);
+
+                const dayStr = String(bkkDate.getDate()).padStart(2, '0');
+                const monthIndex = bkkDate.getMonth();
+                const yearTh = bkkDate.getFullYear() + 543;
+                
+                const hours = String(bkkDate.getHours()).padStart(2, '0');
+                const minutes = String(bkkDate.getMinutes()).padStart(2, '0');
+                const seconds = String(bkkDate.getSeconds()).padStart(2, '0');
+                const thaiTimeStr = `${hours}:${minutes}:${seconds}`;
+
+                const dayEl = document.getElementById('thai-widget-day');
+                const monthEl = document.getElementById('thai-widget-month');
+                const timeEl = document.getElementById('thai-widget-time');
+                const yearEl = document.getElementById('thai-widget-year');
+
+                if (dayEl) dayEl.innerText = dayStr;
+                if (monthEl) monthEl.innerText = thaiMonthsShort[monthIndex] || '';
+                if (timeEl) timeEl.innerText = thaiTimeStr;
+                if (yearEl) yearEl.innerText = `พ.ศ. ${yearTh}`;
+            }
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
 
         function loadSampleData() {
             gardens = [
                 {
                     id: 'g1',
                     name: 'สวนที่ 1 (ผักปลอดสาร)',
-                    description: 'แปลงผักสลัดและผักสวนครัว',
+                    description: 'แปลงผักสลัดและผักสวนครัวออร์แกนิก',
                     tasks: [
                         { id: 't1', title: 'เตรียมแปลงดินและหว่านปุ๋ยหมัก', status: 'done' },
                         { id: 't2', title: 'ย้ายต้นกล้าลงแปลง', status: 'doing' },
@@ -509,13 +618,13 @@
             ];
         }
 
-        // Render Garden Tabs with Drag & Drop (Desktop)
+        // Render Garden Tabs with Drag & Drop
         function renderGardenList() {
             const container = document.getElementById('garden-list-container');
             container.innerHTML = '';
 
             if (gardens.length === 0) {
-                container.innerHTML = `<span class="text-xs text-green-300 italic">ยังไม่มีข้อมูลสวน</span>`;
+                container.innerHTML = `<span class="text-xs text-gray-400 italic font-medium">ยังไม่มีข้อมูลสวน</span>`;
                 return;
             }
 
@@ -524,21 +633,20 @@
                 const card = document.createElement('div');
                 card.draggable = true;
                 card.dataset.index = index;
-                card.className = `px-3 py-1.5 rounded-xl cursor-grab active:cursor-grabbing transition flex items-center gap-1.5 shrink-0 text-xs font-medium whitespace-nowrap border ${
+                card.className = `px-4 py-2 rounded-2xl cursor-grab active:cursor-grabbing transition flex items-center gap-2 shrink-0 text-xs font-bold whitespace-nowrap border ${
                     isActive 
-                        ? 'bg-brand-accent text-brand-dark shadow-xs border-brand-accent font-bold' 
-                        : 'bg-green-800/60 hover:bg-green-800 text-green-100 border-green-700/50'
+                        ? 'bg-[#0F4C81] text-white border-[#0F4C81] shadow-md shadow-blue-200' 
+                        : 'bg-white hover:bg-blue-50/50 text-[#06172E] border-blue-100'
                 }`;
 
                 card.innerHTML = `
-                    <i class="fa-solid fa-grip-vertical text-[10px] opacity-40 hover:opacity-100 mr-0.5 hidden md:inline-block"></i>
-                    <i class="fa-solid fa-tree ${isActive ? 'text-brand-dark' : 'text-brand-accent'} text-xs"></i>
+                    <i class="fa-solid fa-grip-vertical text-[10px] opacity-40 mr-0.5 hidden md:inline-block"></i>
+                    <i class="fa-solid fa-tree ${isActive ? 'text-[#B3DEF8]' : 'text-[#58A1D3]'} text-xs"></i>
                     <span>${escapeHtml(garden.name)}</span>
                 `;
 
                 card.onclick = () => selectGarden(garden.id);
 
-                // Drag & Drop
                 card.ondragstart = (e) => {
                     draggedIndex = index;
                     card.classList.add('dragging');
@@ -568,15 +676,6 @@
             if (activeGardenId) renderHeaderActions();
         }
 
-        function shiftActiveGarden(direction) {
-            const currentIndex = gardens.findIndex(g => g.id === activeGardenId);
-            if (currentIndex === -1) return;
-            const targetIndex = currentIndex + direction;
-            if (targetIndex >= 0 && targetIndex < gardens.length) {
-                moveGardenPosition(currentIndex, targetIndex);
-            }
-        }
-
         function renderHeaderActions() {
             const headerActions = document.getElementById('header-actions');
             const currentIndex = gardens.findIndex(g => g.id === activeGardenId);
@@ -586,21 +685,9 @@
                 return;
             }
 
-            const canMoveLeft = currentIndex > 0;
-            const canMoveRight = currentIndex < gardens.length - 1;
-
             headerActions.innerHTML = `
-                <div class="flex items-center gap-1 border border-gray-200 bg-gray-50 rounded-xl p-1">
-                    <button onclick="shiftActiveGarden(-1)" ${!canMoveLeft ? 'disabled class="opacity-30 cursor-not-allowed px-2 py-1 text-xs text-gray-500"' : 'class="px-2 py-1 text-xs text-gray-700 hover:bg-white hover:shadow-xs rounded-lg transition" title="ขยับซ้าย"'}>
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <span class="text-[11px] font-medium text-gray-500 px-1 hidden sm:inline">ลำดับที่ ${currentIndex + 1}</span>
-                    <button onclick="shiftActiveGarden(1)" ${!canMoveRight ? 'disabled class="opacity-30 cursor-not-allowed px-2 py-1 text-xs text-gray-500"' : 'class="px-2 py-1 text-xs text-gray-700 hover:bg-white hover:shadow-xs rounded-lg transition" title="ขยับขวา"'}>
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-                </div>
-                <button onclick="confirmDeleteGarden('${activeGardenId}')" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 px-3 py-2 rounded-xl transition flex items-center gap-1 font-medium">
-                    <i class="fa-solid fa-trash"></i> <span class="hidden sm:inline">ลบสวนนี้</span>
+                <button onclick="confirmDeleteGarden('${activeGardenId}')" class="soft-btn bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs px-3.5 py-2 font-bold flex items-center gap-1.5 border border-rose-100">
+                    <i class="fa-solid fa-trash text-xs"></i> <span class="hidden sm:inline">ลบสวน</span>
                 </button>
             `;
         }
@@ -618,7 +705,7 @@
             document.getElementById('empty-state').classList.add('hidden');
             document.getElementById('dashboard-content').classList.remove('hidden');
 
-            document.getElementById('garden-title').innerText = garden.name;
+            document.getElementById('garden-title').innerHTML = `<span>${escapeHtml(garden.name)}</span> <i class="fa-solid fa-seedling text-[#0F4C81] text-base"></i>`;
             document.getElementById('garden-desc').innerText = garden.description || 'ไม่มีคำอธิบายเพิ่มเติม';
             
             renderHeaderActions();
@@ -651,52 +738,49 @@
             document.getElementById('stat-done').innerText = doneCount;
 
             if (garden.tasks.length === 0) {
-                list.innerHTML = `<div class="text-center py-8 text-xs text-gray-400">ยังไม่มีขั้นตอนการทำงาน <br>กดปุ่ม "+ เพิ่มงาน" เพื่อบันทึกข้อมูล</div>`;
+                list.innerHTML = `<div class="text-center py-10 text-xs text-[#58A1D3] font-semibold">ยังไม่มีขั้นตอนการทำงาน <br>กดปุ่ม "+ เพิ่มงาน" เพื่อบันทึกข้อมูล</div>`;
                 return;
             }
 
             garden.tasks.forEach(task => {
                 const item = document.createElement('div');
-                item.className = 'p-3 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-between gap-3 hover:bg-gray-100/80 transition';
+                item.className = 'soft-card-sm p-3.5 flex items-center justify-between gap-3 hover:bg-blue-50/20 transition';
                 
                 let badgeClass = '';
                 let statusBadge = '';
                 
                 if (task.status === 'todo') {
-                    badgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
+                    badgeClass = 'bg-rose-50 text-rose-700 border-rose-100';
                     statusBadge = `
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-700 border border-rose-200 shrink-0">
-                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                            ยังไม่ทำ
+                        <span class="soft-badge px-2.5 py-1 text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-100 flex items-center gap-1">
+                            🔴 ยังไม่ทำ
                         </span>`;
                 } else if (task.status === 'doing') {
-                    badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+                    badgeClass = 'bg-[#B3DEF8]/40 text-[#0F4C81] border-blue-200';
                     statusBadge = `
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 border border-amber-200 shrink-0">
-                            <i class="fa-solid fa-rotate text-[9px] animate-spin text-amber-600"></i>
-                            กำลังทำ
+                        <span class="soft-badge px-2.5 py-1 text-[11px] font-semibold bg-[#B3DEF8]/40 text-[#0F4C81] border border-blue-200 flex items-center gap-1">
+                            🟡 กำลังทำ
                         </span>`;
                 } else {
-                    badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                    badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-100';
                     statusBadge = `
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
-                            <i class="fa-solid fa-check text-[9px] text-emerald-600"></i>
-                            เสร็จแล้ว
+                        <span class="soft-badge px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-1">
+                            🟢 เสร็จแล้ว
                         </span>`;
                 }
 
                 item.innerHTML = `
-                    <div class="flex items-center gap-2 min-w-0">
+                    <div class="flex items-center gap-2.5 min-w-0">
                         ${statusBadge}
-                        <span class="text-xs md:text-sm text-gray-800 font-medium truncate ${task.status === 'done' ? 'line-through text-gray-400' : ''}">${escapeHtml(task.title)}</span>
+                        <span class="text-xs md:text-sm text-[#06172E] font-medium truncate ${task.status === 'done' ? 'line-through text-gray-400' : ''}">${escapeHtml(task.title)}</span>
                     </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        <select onchange="updateTaskStatus('${task.id}', this.value)" class="text-xs px-2 py-1 rounded-lg border text-gray-700 font-medium bg-white focus:outline-none shadow-2xs ${badgeClass}">
+                    <div class="flex items-center gap-2 shrink-0">
+                        <select onchange="updateTaskStatus('${task.id}', this.value)" class="text-xs px-2.5 py-1.5 rounded-xl border border-blue-200 text-[#0F4C81] font-medium bg-white focus:outline-none ${badgeClass}">
                             <option value="todo" ${task.status === 'todo' ? 'selected' : ''}>🔴 ยังไม่ทำ</option>
                             <option value="doing" ${task.status === 'doing' ? 'selected' : ''}>🟡 กำลังทำ</option>
                             <option value="done" ${task.status === 'done' ? 'selected' : ''}>🟢 เสร็จแล้ว</option>
                         </select>
-                        <button onclick="deleteTask('${task.id}')" class="text-gray-400 hover:text-rose-600 p-1 rounded-lg hover:bg-rose-50 transition">
+                        <button onclick="deleteTask('${task.id}')" class="text-gray-300 hover:text-rose-500 p-1.5 transition">
                             <i class="fa-solid fa-xmark text-xs"></i>
                         </button>
                     </div>
@@ -711,22 +795,22 @@
             list.innerHTML = '';
 
             if (garden.items.length === 0) {
-                list.innerHTML = `<div class="text-center py-8 text-xs text-gray-400">ยังไม่มีรายการสิ่งที่ต้องใช้</div>`;
+                list.innerHTML = `<div class="text-center py-10 text-xs text-[#58A1D3] font-semibold">ยังไม่มีรายการสิ่งที่ต้องใช้</div>`;
                 return;
             }
 
             garden.items.forEach(item => {
                 const el = document.createElement('div');
-                el.className = 'p-3 rounded-xl border border-gray-100 bg-gray-50 flex justify-between items-center text-xs';
+                el.className = 'soft-card-sm p-3.5 flex justify-between items-center text-xs';
                 el.innerHTML = `
                     <div>
-                        <span class="font-semibold text-gray-800 block text-xs md:text-sm">${escapeHtml(item.name)}</span>
-                        <span class="text-gray-500 text-[11px]">จำนวน: ${escapeHtml(item.qty)}</span>
+                        <span class="font-bold text-[#06172E] block text-xs md:text-sm">${escapeHtml(item.name)}</span>
+                        <span class="text-[#58A1D3] font-medium text-[11px]">จำนวน: ${escapeHtml(item.qty)}</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        ${item.cost ? `<span class="font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-md border border-amber-100 text-[11px]">~ ${formatMoney(item.cost)} ฿</span>` : ''}
-                        <button onclick="deleteItem('${item.id}')" class="text-gray-400 hover:text-rose-600 p-1">
-                            <i class="fa-solid fa-trash-can"></i>
+                    <div class="flex items-center gap-2.5">
+                        ${item.cost ? `<span class="text-[11px] font-bold text-[#0F4C81] bg-[#B3DEF8]/30 border border-blue-200 px-2.5 py-1 rounded-xl">~ ${formatMoney(item.cost)} ฿</span>` : ''}
+                        <button onclick="deleteItem('${item.id}')" class="text-gray-300 hover:text-rose-500 p-1.5 transition">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
                         </button>
                     </div>
                 `;
@@ -754,29 +838,28 @@
             
             const netEl = document.getElementById('net-balance');
             netEl.innerText = `${formatMoney(netBalance)} ฿`;
-            netEl.className = `text-xl md:text-2xl font-bold mt-1 ${netBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
             if (garden.finances.length === 0) {
-                list.innerHTML = `<div class="text-center py-6 text-xs text-gray-400">ยังไม่มีประวัติรายรับ-รายจ่าย</div>`;
+                list.innerHTML = `<div class="text-center py-8 text-xs text-[#58A1D3] font-semibold">ยังไม่มีประวัติรายรับ-รายจ่าย</div>`;
                 return;
             }
 
             garden.finances.forEach(f => {
                 const isIncome = f.type === 'income';
                 const item = document.createElement('div');
-                item.className = 'p-2.5 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-between text-xs';
+                item.className = 'soft-card-sm p-3 flex items-center justify-between text-xs';
                 item.innerHTML = `
-                    <div class="flex items-center gap-2 min-w-0">
-                        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${isIncome ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}">
-                            <i class="fa-solid ${isIncome ? 'fa-plus' : 'fa-minus'} text-[9px]"></i>
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-6 h-6 rounded-xl flex items-center justify-center shrink-0 ${isIncome ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                            <i class="fa-solid ${isIncome ? 'fa-plus' : 'fa-minus'} text-[10px]"></i>
                         </div>
-                        <span class="text-gray-700 font-medium truncate text-xs">${escapeHtml(f.title)}</span>
+                        <span class="text-[#06172E] font-medium truncate text-xs">${escapeHtml(f.title)}</span>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                        <span class="font-bold text-xs ${isIncome ? 'text-emerald-600' : 'text-rose-600'}">
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <span class="text-xs font-bold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}">
                             ${isIncome ? '+' : '-'}${formatMoney(f.amount)} ฿
                         </span>
-                        <button onclick="deleteFinance('${f.id}')" class="text-gray-400 hover:text-rose-600 p-0.5">
+                        <button onclick="deleteFinance('${f.id}')" class="text-gray-300 hover:text-rose-500 p-1 transition">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
@@ -789,7 +872,6 @@
         function switchMobileTab(tab) {
             currentMobileTab = tab;
             
-            // Mobile Buttons style update
             const btnTasks = document.getElementById('mtab-btn-tasks');
             const btnItems = document.getElementById('mtab-btn-items');
             const btnFinance = document.getElementById('mtab-btn-finance');
@@ -798,16 +880,13 @@
             const navItems = document.getElementById('mnav-items');
             const navFinance = document.getElementById('mnav-finance');
 
-            // Reset classes
-            [btnTasks, btnItems, btnFinance].forEach(b => b.className = 'flex-1 py-2 rounded-xl text-center transition text-gray-600');
-            [navTasks, navItems, navFinance].forEach(n => n.className = 'flex flex-col items-center gap-0.5 text-gray-400');
+            [btnTasks, btnItems, btnFinance].forEach(b => b.className = 'flex-1 py-2.5 rounded-xl text-center transition text-[#58A1D3] bg-transparent font-medium');
+            [navTasks, navItems, navFinance].forEach(n => n.className = 'flex flex-col items-center gap-1 text-[#58A1D3]');
 
-            // Panels Visibility
             const pTasks = document.getElementById('panel-tasks');
             const pItems = document.getElementById('panel-items');
             const pFinance = document.getElementById('panel-finance');
 
-            // Hide all on mobile view logic
             if (window.innerWidth < 768) {
                 pTasks.classList.add('hidden');
                 pItems.classList.add('hidden');
@@ -815,26 +894,24 @@
 
                 if (tab === 'tasks') {
                     pTasks.classList.remove('hidden');
-                    btnTasks.className = 'flex-1 py-2 rounded-xl text-center transition bg-white text-brand-dark font-bold shadow-xs';
-                    navTasks.className = 'flex flex-col items-center gap-0.5 text-brand-primary';
+                    btnTasks.className = 'flex-1 py-2.5 rounded-xl text-center transition bg-[#0F4C81] text-white font-bold shadow-sm shadow-blue-200';
+                    navTasks.className = 'flex flex-col items-center gap-1 text-[#0F4C81] font-bold';
                 } else if (tab === 'items') {
                     pItems.classList.remove('hidden');
-                    btnItems.className = 'flex-1 py-2 rounded-xl text-center transition bg-white text-amber-700 font-bold shadow-xs';
-                    navItems.className = 'flex flex-col items-center gap-0.5 text-amber-600';
+                    btnItems.className = 'flex-1 py-2.5 rounded-xl text-center transition bg-[#0F4C81] text-white font-bold shadow-sm shadow-blue-200';
+                    navItems.className = 'flex flex-col items-center gap-1 text-[#0F4C81] font-bold';
                 } else if (tab === 'finance') {
                     pFinance.classList.remove('hidden');
-                    btnFinance.className = 'flex-1 py-2 rounded-xl text-center transition bg-white text-emerald-700 font-bold shadow-xs';
-                    navFinance.className = 'flex flex-col items-center gap-0.5 text-emerald-600';
+                    btnFinance.className = 'flex-1 py-2.5 rounded-xl text-center transition bg-[#0F4C81] text-white font-bold shadow-sm shadow-blue-200';
+                    navFinance.className = 'flex flex-col items-center gap-1 text-[#0F4C81] font-bold';
                 }
             } else {
-                // Ensure all visible on PC
                 pTasks.classList.remove('hidden');
                 pItems.classList.remove('hidden');
                 pFinance.classList.remove('hidden');
             }
         }
 
-        // Window resize listener to fix panel states
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 768) {
                 document.getElementById('panel-tasks').classList.remove('hidden');
@@ -1043,7 +1120,7 @@
 
             showConfirmDialog(
                 `ลบข้อมูล "${garden.name}"`,
-                'คุณแน่ใจหรือไม่ว่าต้องการลบสวนนี้รวมถึงข้อมูลขั้นตอนและบัญชีทั้งหมด?',
+                'คุณแน่ใจหรือไม่ว่าต้องการลบสวนนี้รวมถึงขั้นตอนและบัญชีทั้งหมด?',
                 () => {
                     gardens = gardens.filter(g => g.id !== gardenId);
                     if (gardens.length > 0) {
@@ -1069,10 +1146,10 @@
 
             if (type === 'income') {
                 titleEl.innerText = 'บันทึกรายรับ (+)';
-                btnEl.className = 'px-4 py-2 text-sm text-white rounded-xl font-medium bg-emerald-600 hover:bg-emerald-700';
+                btnEl.className = 'soft-btn text-xs px-5 py-2.5 font-bold bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm shadow-emerald-200';
             } else {
                 titleEl.innerText = 'บันทึกรายจ่าย (-)';
-                btnEl.className = 'px-4 py-2 text-sm text-white rounded-xl font-medium bg-rose-600 hover:bg-rose-700';
+                btnEl.className = 'soft-btn text-xs px-5 py-2.5 font-bold bg-rose-500 hover:bg-rose-600 text-white shadow-sm shadow-rose-200';
             }
             openModal('modal-add-finance');
         }

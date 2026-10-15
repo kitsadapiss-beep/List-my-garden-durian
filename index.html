@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts: Kanit Font -->
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+    <!-- Tone.js for Sound Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -114,7 +116,6 @@
 </head>
 <body class="text-soft-textDark antialiased min-h-screen flex flex-col pb-24 md:pb-8">
 
-    <!-- ================= TOP NAVIGATION BAR (BLUE PALETTE MINIMALIST) ================= -->
     <header class="w-full bg-white/90 backdrop-blur-md border-b border-blue-100 px-4 md:px-8 py-4 sticky top-0 z-40 shadow-xs">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             
@@ -126,15 +127,15 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-base md:text-lg leading-tight text-[#06172E] flex items-center gap-1.5">
-                            สวนของฉัน <span class="text-xs bg-[#B3DEF8] text-[#0F4C81] px-2 py-0.5 rounded-full font-bold">Smart</span>
+                            สวนทุเรียนของฉัน <span class="text-xs bg-[#B3DEF8] text-[#0F4C81] px-2 py-0.5 rounded-full font-bold">Durian Smart</span>
                         </h1>
-                        <p class="text-xs text-[#58A1D3] font-medium">บันทึกและติดตามสถานะงานในสวน</p>
+                        <p class="text-xs text-[#58A1D3] font-medium">บันทึกและติดตามสถานะงานสวนทุเรียน (บันทึกอัตโนมัติ)</p>
                     </div>
                 </div>
 
                 <!-- Add Garden Button (Mobile Only) -->
-                <button onclick="openAddGardenModal()" class="md:hidden soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-3.5 py-2 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-200">
-                    <i class="fa-solid fa-plus text-xs"></i> เพิ่มสวน
+                <button onclick="playClickSound(); openAddGardenModal()" class="md:hidden soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-3.5 py-2 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-200">
+                    <i class="fa-solid fa-plus text-xs"></i> เพิ่มสวนทุเรียน
                 </button>
             </div>
             
@@ -146,33 +147,40 @@
             </div>
 
             <!-- Right Side: Add Garden Button (PC Only) -->
-            <button onclick="openAddGardenModal()" class="hidden md:flex shrink-0 soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-4 py-2.5 font-bold text-xs items-center gap-2 shadow-md shadow-blue-200">
+            <button onclick="playClickSound(); openAddGardenModal()" class="hidden md:flex shrink-0 soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-4 py-2.5 font-bold text-xs items-center gap-2 shadow-md shadow-blue-200">
                 <i class="fa-solid fa-plus text-xs"></i> เพิ่มสวนใหม่ ✨
             </button>
 
         </div>
     </header>
 
-    <!-- ================= MAIN CONTENT AREA ================= -->
     <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6">
         
-        <!-- Top Bar: Modern Soft Clock Widget Centered and Full Width -->
-        <div class="flex items-center justify-center">
-            <div class="w-full soft-card px-6 py-4 flex flex-col md:flex-row items-center justify-center gap-4 bg-white shadow-xs border border-blue-100 select-none text-center">
-                <div class="flex items-center gap-2.5 text-[#0F4C81] font-bold text-sm md:text-base">
-                    <i class="fa-regular fa-calendar-days text-[#58A1D3] text-lg"></i>
-                    <span>วันที่ปัจจุบัน:</span>
-                    <span id="thai-widget-day" class="bg-[#B3DEF8]/40 px-2.5 py-1 rounded-xl text-[#06172E]">00</span> 
-                    <span id="thai-widget-month" class="bg-[#B3DEF8]/40 px-2.5 py-1 rounded-xl text-[#06172E]">---</span> 
-                    <span id="thai-widget-year" class="bg-[#B3DEF8]/40 px-2.5 py-1 rounded-xl text-[#06172E]">พ.ศ. ----</span>
+        <!-- All Gardens Pending Tasks Overview Block -->
+        <div class="soft-card p-4 md:p-5 bg-white border border-blue-100">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-2 border-b border-blue-50">
+                <h3 class="text-xs md:text-sm font-bold text-[#06172E] flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-list text-[#0F4C81]"></i> สรุปงานที่ค้างอยู่ของแต่ละแปลง
+                </h3>
+                
+                <!-- Relocated Date and Time Widget (Image 2 Position) -->
+                <div class="flex items-center gap-2 text-xs font-semibold text-[#0F4C81] bg-blue-50/50 px-3 py-1.5 rounded-xl border border-blue-100">
+                    <div class="flex items-center gap-1.5">
+                        <i class="fa-regular fa-calendar-days text-[#58A1D3]"></i>
+                        <span id="thai-widget-day" class="font-bold text-[#06172E]">00</span>
+                        <span id="thai-widget-month" class="font-bold text-[#06172E]">---</span>
+                        <span id="thai-widget-year" class="font-bold text-[#06172E]">พ.ศ. ----</span>
+                    </div>
+                    <span class="text-blue-200">|</span>
+                    <div class="flex items-center gap-1.5">
+                        <i class="fa-regular fa-clock text-[#58A1D3]"></i>
+                        <span id="thai-widget-time" class="font-bold text-[#0F4C81]">00:00:00</span>
+                        <span class="text-[10px] text-[#58A1D3]">น.</span>
+                    </div>
                 </div>
-                <div class="hidden md:block w-px h-6 bg-blue-100"></div>
-                <div class="flex items-center gap-2.5 text-[#06172E] font-bold text-sm md:text-base">
-                    <i class="fa-regular fa-clock text-[#58A1D3] text-lg"></i>
-                    <span>เวลา:</span>
-                    <span id="thai-widget-time" class="bg-[#B3DEF8]/40 px-3 py-1 rounded-xl text-[#0F4C81]">00:00:00</span>
-                    <span class="text-xs text-[#58A1D3]">น.</span>
-                </div>
+            </div>
+            <div id="all-gardens-pending-summary" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                <!-- Dynamic Garden Pending Summaries -->
             </div>
         </div>
 
@@ -180,9 +188,9 @@
         <div id="active-garden-header" class="soft-card p-6 md:p-8 flex flex-wrap justify-between items-center gap-4 bg-gradient-to-br from-white to-[#B3DEF8]/20">
             <div>
                 <h2 id="garden-title" class="text-xl md:text-2xl font-bold text-[#06172E] flex items-center gap-2.5">
-                    <span>กรุณาเลือกหรือสร้างสวน</span> <i class="fa-solid fa-seedling text-[#0F4C81]"></i>
+                    <span>กรุณาเลือกหรือสร้างแปลงทุเรียน</span> <i class="fa-solid fa-seedling text-[#0F4C81]"></i>
                 </h2>
-                <p id="garden-desc" class="text-xs md:text-sm text-[#58A1D3] mt-1 font-medium">รายละเอียดและภาพรวมการดำเนินงานในสวนของคุณ</p>
+                <p id="garden-desc" class="text-xs md:text-sm text-[#58A1D3] mt-1 font-medium">รายละเอียดและภาพรวมการจัดการสวนทุเรียนของคุณ</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap" id="header-actions">
                 <!-- Header Actions rendered here -->
@@ -254,10 +262,13 @@
                                 <p class="text-xs text-[#58A1D3]">บันทึกและติดตามสถานะภารกิจรายวัน</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button onclick="confirmResetTasks()" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-2.5 py-1.5 font-bold flex items-center gap-1">
+                                <button onclick="playClickSound(); openTaskHistoryModal()" class="soft-btn bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1.5 font-bold flex items-center gap-1 border border-emerald-200">
+                                    <i class="fa-solid fa-clock-rotate-left"></i> <span class="hidden sm:inline">ประวัติงาน</span>
+                                </button>
+                                <button onclick="playClickSound(); confirmResetTasks()" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-2.5 py-1.5 font-bold flex items-center gap-1">
                                     <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline">รีเซ็ต</span>
                                 </button>
-                                <button onclick="openAddTaskModal()" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white text-xs px-3 py-1.5 font-bold flex items-center gap-1 shadow-sm shadow-blue-200">
+                                <button onclick="playClickSound(); openAddTaskModal()" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white text-xs px-3 py-1.5 font-bold flex items-center gap-1 shadow-sm shadow-blue-200">
                                     <i class="fa-solid fa-plus"></i> เพิ่มงาน
                                 </button>
                             </div>
@@ -279,10 +290,10 @@
                                 <p class="text-xs text-[#58A1D3]">ปุ๋ย ยา และอุปกรณ์การเกษตร</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button onclick="confirmResetItems()" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-2.5 py-1.5 font-bold flex items-center gap-1">
+                                <button onclick="playClickSound(); confirmResetItems()" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-2.5 py-1.5 font-bold flex items-center gap-1">
                                     <i class="fa-solid fa-rotate-left"></i> <span class="hidden sm:inline">รีเซ็ต</span>
                                 </button>
-                                <button onclick="openAddItemModal()" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white text-xs px-3 py-1.5 font-bold flex items-center gap-1 shadow-sm shadow-blue-200">
+                                <button onclick="playClickSound(); openAddItemModal()" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white text-xs px-3 py-1.5 font-bold flex items-center gap-1 shadow-sm shadow-blue-200">
                                     <i class="fa-solid fa-plus"></i> เพิ่มสิ่งของ
                                 </button>
                             </div>
@@ -306,7 +317,7 @@
                                 </h3>
                                 <p class="text-xs text-[#58A1D3]">บัญชีการเงินเฉพาะสวนนี้</p>
                             </div>
-                            <button onclick="confirmResetFinance()" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-2.5 py-1.5 font-bold flex items-center gap-1">
+                            <button onclick="playClickSound(); confirmResetFinance()" class="soft-btn bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-2.5 py-1.5 font-bold flex items-center gap-1">
                                 <i class="fa-solid fa-rotate-left"></i> รีเซ็ต
                             </button>
                         </div>
@@ -331,10 +342,10 @@
 
                         <!-- Add Finance Buttons -->
                         <div class="flex gap-2.5 mb-5">
-                            <button onclick="openAddFinanceModal('income')" class="flex-1 soft-btn bg-emerald-500 hover:bg-emerald-600 text-white text-xs py-2.5 font-bold flex items-center justify-center gap-1 shadow-sm shadow-emerald-200">
+                            <button onclick="playClickSound(); openAddFinanceModal('income')" class="flex-1 soft-btn bg-emerald-500 hover:bg-emerald-600 text-white text-xs py-2.5 font-bold flex items-center justify-center gap-1 shadow-sm shadow-emerald-200">
                                 <i class="fa-solid fa-plus-circle"></i> เพิ่มรายรับ
                             </button>
-                            <button onclick="openAddFinanceModal('expense')" class="flex-1 soft-btn bg-rose-500 hover:bg-rose-600 text-white text-xs py-2.5 font-bold flex items-center justify-center gap-1 shadow-sm shadow-rose-200">
+                            <button onclick="playClickSound(); openAddFinanceModal('expense')" class="flex-1 soft-btn bg-rose-500 hover:bg-rose-600 text-white text-xs py-2.5 font-bold flex items-center justify-center gap-1 shadow-sm shadow-rose-200">
                                 <i class="fa-solid fa-minus-circle"></i> เพิ่มรายจ่าย
                             </button>
                         </div>
@@ -359,10 +370,10 @@
             <div class="w-16 h-16 md:w-20 md:h-20 bg-[#B3DEF8] text-[#0F4C81] rounded-3xl flex items-center justify-center mx-auto text-2xl md:text-3xl mb-4 shadow-sm">
                 <i class="fa-solid fa-tree"></i>
             </div>
-            <h3 class="text-lg md:text-xl font-bold text-[#06172E] mb-2">ยินดีต้อนรับสู่ Smart Garden ✨</h3>
-            <p class="text-xs md:text-sm text-[#58A1D3] max-w-md mx-auto mb-6 font-medium">เริ่มต้นการใช้งานโดยกดเพิ่มสวนใหม่ของคุณ (เช่น สวนที่ 1, สวนทุเรียน, สวนผักออร์แกนิก)</p>
-            <button onclick="openAddGardenModal()" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-6 py-3 text-xs md:text-sm font-bold inline-flex items-center gap-2 shadow-md shadow-blue-200">
-                <i class="fa-solid fa-plus"></i> เพิ่มสวนแรกของคุณ ✨
+            <h3 class="text-lg md:text-xl font-bold text-[#06172E] mb-2">ยินดีต้อนรับสู่ Durian Smart Garden ✨</h3>
+            <p class="text-xs md:text-sm text-[#58A1D3] max-w-md mx-auto mb-6 font-medium">เริ่มต้นการใช้งานโดยกดเพิ่มแปลงทุเรียนของคุณ (ข้อมูลจะถูกบันทึกอัตโนมัติ)</p>
+            <button onclick="playClickSound(); openAddGardenModal()" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-6 py-3 text-xs md:text-sm font-bold inline-flex items-center gap-2 shadow-md shadow-blue-200">
+                <i class="fa-solid fa-plus"></i> เพิ่มแปลงทุเรียนแรกของคุณ ✨
             </button>
         </div>
 
@@ -395,17 +406,17 @@
     <div id="modal-add-garden" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
         <div class="soft-card bg-white max-w-md w-full p-6 md:p-8 relative shadow-2xl">
             <h3 class="text-base md:text-lg font-bold text-[#06172E] mb-4 flex items-center gap-2">
-                ✨ เพิ่มสวนใหม่
+                ✨ เพิ่มแปลงทุเรียนใหม่
             </h3>
             <form onsubmit="handleAddGarden(event)">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">ชื่อสวน *</label>
-                        <input type="text" id="garden-name-input" required placeholder="เช่น สวนที่ 1, สวนสตรอว์เบอร์รี" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
+                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">ชื่อแปลงทุเรียน *</label>
+                        <input type="text" id="garden-name-input" required placeholder="เช่น แปลงหมอนทอง 10 ไร่, แปลงทุเรียนสาว" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">คำอธิบายเพิ่มเติม</label>
-                        <textarea id="garden-desc-input" rows="2" placeholder="รายละเอียดเพิ่มเติม..." class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30"></textarea>
+                        <textarea id="garden-desc-input" rows="2" placeholder="เช่น ทุเรียนหมอนทอง 120 ต้น อายุ 6 ปี" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30"></textarea>
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
@@ -420,13 +431,17 @@
     <div id="modal-add-task" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
         <div class="soft-card bg-white max-w-md w-full p-6 md:p-8 relative shadow-2xl">
             <h3 class="text-base md:text-lg font-bold text-[#06172E] mb-4 flex items-center gap-2">
-                📝 เพิ่มขั้นตอนการทำงาน
+                📝 เพิ่มขั้นตอนดูแลทุเรียน
             </h3>
             <form onsubmit="handleAddTask(event)">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">ชื่อขั้นตอน/งาน *</label>
-                        <input type="text" id="task-title-input" required placeholder="เช่น ใส่ปุ๋ยคอก, รดน้ำผัก" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
+                        <input type="text" id="task-title-input" required placeholder="เช่น โยงกิ่งรับน้ำหนักลูก, ปรับสะสมอาหาร, พ่นยาไรแดง" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">วันที่เริ่มงาน *</label>
+                        <input type="date" id="task-start-date-input" required class="w-full border border-blue-200 rounded-2xl px-3 py-3 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">สถานะเริ่มต้น</label>
@@ -445,30 +460,54 @@
         </div>
     </div>
 
+    <!-- Modal: Task History -->
+    <div id="modal-task-history" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
+        <div class="soft-card bg-white max-w-lg w-full p-6 md:p-8 relative shadow-2xl">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-blue-50">
+                <h3 class="text-base md:text-lg font-bold text-[#06172E] flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i> ประวัติงานที่ทำเสร็จแล้ว (🟢 เสร็จแล้ว)
+                </h3>
+                <button onclick="closeModal('modal-task-history')" class="text-gray-400 hover:text-gray-600 p-1">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div id="task-history-list" class="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
+                <!-- Completed task history dynamic -->
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="button" onclick="closeModal('modal-task-history')" class="soft-btn bg-[#0F4C81] hover:bg-[#022C50] text-white px-5 py-2.5 text-xs font-bold">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal 3: Add Required Item -->
     <div id="modal-add-item" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 hidden p-4">
         <div class="soft-card bg-white max-w-md w-full p-6 md:p-8 relative shadow-2xl">
             <h3 class="text-base md:text-lg font-bold text-[#06172E] mb-4 flex items-center gap-2">
-                📦 เพิ่มสิ่งของที่ต้องใช้
+                📦 เพิ่มปัจจัยการผลิต/อุปกรณ์ทุเรียน
             </h3>
             <form onsubmit="handleAddItem(event)">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">ชื่อสิ่งของ / อุปกรณ์ *</label>
-                        <input type="text" id="item-name-input" required placeholder="เช่น ปุ๋ยหมัก, กรรไกร" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
+                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">ชื่อสิ่งของ / ยา / ปุ๋ย *</label>
+                        <input type="text" id="item-name-input" required placeholder="เช่น เชือกฟางโยงลูก, ปุ๋ย 8-24-24, ยาป้องกันเพลี้ยไก่แจ้" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">จำนวน/หน่วย *</label>
-                            <input type="text" id="item-qty-input" required placeholder="เช่น 2 ถุง" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
+                            <input type="text" id="item-qty-input" required placeholder="เช่น 5 กระสอบ, 2 ม้วน" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">ราคาประเมิน (บาท)</label>
                             <input type="number" step="0.01" id="item-cost-input" placeholder="0.00" class="w-full border border-blue-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
                         </div>
                     </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-[#0F4C81] mb-1.5">วันที่ซื้อ *</label>
+                        <input type="date" id="item-purchase-date" required class="w-full border border-blue-200 rounded-2xl px-3 py-3 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-[#58A1D3] bg-blue-50/30">
+                    </div>
                     <p class="text-[11px] font-semibold text-[#0F4C81] bg-[#B3DEF8]/30 p-3 rounded-xl border border-blue-200">
-                        💡 หากกรอกราคาประเมิน ระบบจะบันทึกเป็นรายจ่ายให้อัตโนมัติ
+                        💡 หากกรอกราคาประเมิน ระบบจะบันทึกเป็นรายจ่ายของสวนทุเรียนให้อัตโนมัติ
                     </p>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
@@ -526,8 +565,30 @@
         let draggedIndex = null;
         let currentMobileTab = 'tasks';
 
+        // Tone.js Synth for UI audio feedback
+        let synth = null;
+        function initSynth() {
+            if (!synth) {
+                synth = new Tone.Synth({
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 }
+                }).toDestination();
+            }
+        }
+        function playClickSound() {
+            try {
+                initSynth();
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                synth.triggerAttackRelease("C5", "32n");
+            } catch(e) {
+                // Audio context policy fallback
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            loadSampleData();
+            loadFromLocalStorage();
             renderGardenList();
             
             if (gardens.length > 0) {
@@ -538,7 +599,46 @@
 
             switchMobileTab(currentMobileTab);
             startThailandClock();
+            
+            // Set default date in task modal to today
+            const taskDateInput = document.getElementById('task-start-date-input');
+            const itemDateInput = document.getElementById('item-purchase-date');
+            const todayIso = new Date().toISOString().split('T')[0];
+            if (taskDateInput) taskDateInput.value = todayIso;
+            if (itemDateInput) itemDateInput.value = todayIso;
         });
+
+        // LocalStorage Persistence Handlers
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('smart_gardens_data', JSON.stringify(gardens));
+                localStorage.setItem('smart_active_garden_id', activeGardenId || '');
+            } catch (e) {
+                console.error('Failed to save to localStorage', e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('smart_gardens_data');
+                const savedActiveId = localStorage.getItem('smart_active_garden_id');
+
+                if (savedData) {
+                    gardens = JSON.parse(savedData);
+                    if (savedActiveId && gardens.some(g => g.id === savedActiveId)) {
+                        activeGardenId = savedActiveId;
+                    } else if (gardens.length > 0) {
+                        activeGardenId = gardens[0].id;
+                    }
+                } else {
+                    loadSampleData();
+                    saveToLocalStorage();
+                }
+            } catch (e) {
+                console.error('Failed to load from localStorage', e);
+                loadSampleData();
+            }
+        }
 
         // Real-time Thailand Clock & Date
         function startThailandClock() {
@@ -581,47 +681,57 @@
             gardens = [
                 {
                     id: 'g1',
-                    name: 'สวนที่ 1 (ผักปลอดสาร)',
-                    description: 'แปลงผักสลัดและผักสวนครัวออร์แกนิก',
+                    name: 'แปลงหมอนทอง (สวนใหญ่ 15 ไร่)',
+                    description: 'ทุเรียนหมอนทอง 300 ต้น อายุ 8 ปี - ระยะขยายขนาดผล',
                     tasks: [
-                        { id: 't1', title: 'เตรียมแปลงดินและหว่านปุ๋ยหมัก', status: 'done' },
-                        { id: 't2', title: 'ย้ายต้นกล้าลงแปลง', status: 'doing' },
-                        { id: 't3', title: 'ติดตั้งระบบน้ำหยด', status: 'todo' }
+                        { id: 't1', title: 'ตัดแต่งดอกทุเรียน (เลือกตำแหน่งกิ่งเหมาะสม)', status: 'done', startDate: '2026-04-01', completedAt: '2026-04-01' },
+                        { id: 't2', title: 'โยงกิ่งและผูกเชือกโยงลูกทุเรียนรับน้ำหนัก', status: 'doing', startDate: '2026-04-02', completedAt: null },
+                        { id: 't3', title: 'ใส่ปุ๋ยสูตร 13-13-21 ขยายขนาดผลและเพิ่มความหวาน', status: 'todo', startDate: '2026-04-05', completedAt: null },
+                        { id: 't4', title: 'พ่นสารป้องกันเพลี้ยแป้งและราดำที่ขั้วผล', status: 'todo', startDate: '2026-04-10', completedAt: null }
                     ],
                     items: [
-                        { id: 'i1', name: 'ปุ๋ยหมักชีวภาพ', qty: '3 ถุง', cost: 450 },
-                        { id: 'i2', name: 'สายน้ำหยด 50m', qty: '1 ม้วน', cost: 380 }
+                        { id: 'i1', name: 'ปุ๋ยเคมี สูตร 13-13-21', qty: '10 กระสอบ', cost: 14500, purchaseDate: '2026-04-01' },
+                        { id: 'i2', name: 'เชือกฟางโยงกิ่งเกรด A', qty: '5 ม้วน', cost: 850, purchaseDate: '2026-04-02' },
+                        { id: 'i3', name: 'สารป้องกันกำจัดหนอนเจาะเมล็ดทุเรียน', qty: '2 แกลลอน', cost: 2400, purchaseDate: '2026-04-03' }
                     ],
                     finances: [
-                        { id: 'f1', type: 'expense', title: 'ซื้อเมล็ดพันธุ์ผัก', amount: 250, linkedItemId: null },
-                        { id: 'f2', type: 'expense', title: 'ซื้อปุ๋ยหมักชีวภาพ (3 ถุง)', amount: 450, linkedItemId: 'i1' },
-                        { id: 'f3', type: 'expense', title: 'ซื้อสายน้ำหยด 50m (1 ม้วน)', amount: 380, linkedItemId: 'i2' },
-                        { id: 'f4', type: 'income', title: 'ขายผักสลัดลอตแรก', amount: 1200, linkedItemId: null }
+                        { id: 'f1', type: 'expense', title: 'ซื้อปุ๋ยเคมี สูตร 13-13-21 (10 กระสอบ)', amount: 14500, linkedItemId: 'i1' },
+                        { id: 'f2', type: 'expense', title: 'ซื้อเชือกฟางโยงกิ่งเกรด A (5 ม้วน)', amount: 850, linkedItemId: 'i2' },
+                        { id: 'f3', type: 'expense', title: 'ซื้อสารป้องกันกำจัดหนอนเจาะเมล็ดทุเรียน', amount: 2400, linkedItemId: 'i3' },
+                        { id: 'f4', type: 'expense', title: 'ค่าน้ำมันเชื้อเพลิงปั๊มน้ำรดน้ำสวน', amount: 3500, linkedItemId: null },
+                        { id: 'f5', type: 'income', title: 'มัดจำการตัดทุเรียนล้งลอตแรก (เหมาสวน)', amount: 150000, linkedItemId: null }
                     ]
                 },
                 {
                     id: 'g2',
-                    name: 'สวนที่ 2 (ไม้ผล)',
-                    description: 'แปลงมะม่วงและมะพร้าวน้ำหอม',
+                    name: 'แปลงก้านยาว & มูซังคิง (สวนใหม่ 8 ไร่)',
+                    description: 'ทุเรียนก้านยาวและมูซังคิง 150 ต้น อายุ 4 ปี - ระยะสะสมอาหารทำดอก',
                     tasks: [
-                        { id: 't4', title: 'ตัดแต่งกิ่งมะม่วงหลังเก็บเกี่ยว', status: 'done' },
-                        { id: 't5', title: 'ฉีดพ่นน้ำหมักไล่แมลง', status: 'todo' }
+                        { id: 't5', title: 'พ่นสะสมอาหาร สูตร 8-24-24 ทางใบ', status: 'done', startDate: '2026-04-01', completedAt: '2026-04-02' },
+                        { id: 't6', title: 'โชกน้ำกระตุ้นการออกดอก (ดักโศก)', status: 'doing', startDate: '2026-04-03', completedAt: null },
+                        { id: 't7', title: 'ตรวจเช็กระบบสปริงเกลอร์และท่อน้ำ', status: 'todo', startDate: '2026-04-04', completedAt: null }
                     ],
                     items: [
-                        { id: 'i3', name: 'กรรไกรตัดแต่งกิ่ง', qty: '1 อัน', cost: 290 }
+                        { id: 'i4', name: 'ปุ๋ยทางใบสูตรสะสมอาหาร 8-24-24', qty: '3 ถุง', cost: 3200, purchaseDate: '2026-04-01' },
+                        { id: 'i5', name: 'มินิสปริงเกลอร์ชดเชยแรงดัน', qty: '50 หัว', cost: 650, purchaseDate: '2026-04-02' }
                     ],
                     finances: [
-                        { id: 'f5', type: 'expense', title: 'ซื้อกรรไกรตัดแต่งกิ่ง (1 อัน)', amount: 290, linkedItemId: 'i3' },
-                        { id: 'f6', type: 'income', title: 'ขายมะม่วงน้ำดอกไม้', amount: 4500, linkedItemId: null }
+                        { id: 'f6', type: 'expense', title: 'ซื้อปุ๋ยทางใบสะสมอาหาร 8-24-24', amount: 3200, linkedItemId: 'i4' },
+                        { id: 'f7', type: 'expense', title: 'ซื้อหัวมินิสปริงเกลอร์', amount: 650, linkedItemId: 'i5' },
+                        { id: 'f8', type: 'income', title: 'ขายกิ่งพันธุ์ทุเรียนมูซังคิง', amount: 18000, linkedItemId: null }
                     ]
                 }
             ];
+            activeGardenId = 'g1';
         }
 
-        // Render Garden Tabs with Drag & Drop
+        // Render Garden Tabs with Sequential Numbering (สวนที่ 1, สวนที่ 2, ...)
         function renderGardenList() {
             const container = document.getElementById('garden-list-container');
             container.innerHTML = '';
+
+            // Render pending summary cards for each garden
+            renderGardensPendingSummary();
 
             if (gardens.length === 0) {
                 container.innerHTML = `<span class="text-xs text-gray-400 italic font-medium">ยังไม่มีข้อมูลสวน</span>`;
@@ -633,6 +743,7 @@
                 const card = document.createElement('div');
                 card.draggable = true;
                 card.dataset.index = index;
+                card.title = garden.name;
                 card.className = `px-4 py-2 rounded-2xl cursor-grab active:cursor-grabbing transition flex items-center gap-2 shrink-0 text-xs font-bold whitespace-nowrap border ${
                     isActive 
                         ? 'bg-[#0F4C81] text-white border-[#0F4C81] shadow-md shadow-blue-200' 
@@ -642,10 +753,13 @@
                 card.innerHTML = `
                     <i class="fa-solid fa-grip-vertical text-[10px] opacity-40 mr-0.5 hidden md:inline-block"></i>
                     <i class="fa-solid fa-tree ${isActive ? 'text-[#B3DEF8]' : 'text-[#58A1D3]'} text-xs"></i>
-                    <span>${escapeHtml(garden.name)}</span>
+                    <span>สวนที่ ${index + 1}</span>
                 `;
 
-                card.onclick = () => selectGarden(garden.id);
+                card.onclick = () => {
+                    playClickSound();
+                    selectGarden(garden.id);
+                };
 
                 card.ondragstart = (e) => {
                     draggedIndex = index;
@@ -672,6 +786,7 @@
             if (fromIndex < 0 || fromIndex >= gardens.length || toIndex < 0 || toIndex >= gardens.length) return;
             const movedGarden = gardens.splice(fromIndex, 1)[0];
             gardens.splice(toIndex, 0, movedGarden);
+            saveToLocalStorage();
             renderGardenList();
             if (activeGardenId) renderHeaderActions();
         }
@@ -686,7 +801,7 @@
             }
 
             headerActions.innerHTML = `
-                <button onclick="confirmDeleteGarden('${activeGardenId}')" class="soft-btn bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs px-3.5 py-2 font-bold flex items-center gap-1.5 border border-rose-100">
+                <button onclick="playClickSound(); confirmDeleteGarden('${activeGardenId}')" class="soft-btn bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs px-3.5 py-2 font-bold flex items-center gap-1.5 border border-rose-100">
                     <i class="fa-solid fa-trash text-xs"></i> <span class="hidden sm:inline">ลบสวน</span>
                 </button>
             `;
@@ -694,6 +809,7 @@
 
         function selectGarden(gardenId) {
             activeGardenId = gardenId;
+            saveToLocalStorage();
             renderGardenList();
             
             const garden = gardens.find(g => g.id === gardenId);
@@ -717,6 +833,7 @@
 
         function renderEmptyState() {
             activeGardenId = null;
+            saveToLocalStorage();
             document.getElementById('empty-state').classList.remove('hidden');
             document.getElementById('dashboard-content').classList.add('hidden');
             document.getElementById('garden-title').innerText = 'กรุณาเลือกหรือสร้างสวน';
@@ -737,12 +854,18 @@
             document.getElementById('stat-doing').innerText = doingCount;
             document.getElementById('stat-done').innerText = doneCount;
 
-            if (garden.tasks.length === 0) {
-                list.innerHTML = `<div class="text-center py-10 text-xs text-[#58A1D3] font-semibold">ยังไม่มีขั้นตอนการทำงาน <br>กดปุ่ม "+ เพิ่มงาน" เพื่อบันทึกข้อมูล</div>`;
+            // Update pending summary cards across gardens whenever tasks change
+            renderGardensPendingSummary();
+
+            // กรองงานที่เสร็จแล้ว (done) ออกจากหน้าจอหลัก ให้แสดงเฉพาะงานที่ยังไม่เสร็จ
+            const activeTasks = garden.tasks.filter(t => t.status !== 'done');
+
+            if (activeTasks.length === 0) {
+                list.innerHTML = `<div class="text-center py-10 text-xs text-[#58A1D3] font-semibold">ยังไม่มีขั้นตอนการทำงานที่ค้างอยู่ <br>(งานที่เสร็จแล้วสามารถตรวจสอบได้ที่ปุ่มประวัติงาน 🕒)</div>`;
                 return;
             }
 
-            garden.tasks.forEach(task => {
+            activeTasks.forEach(task => {
                 const item = document.createElement('div');
                 item.className = 'soft-card-sm p-3.5 flex items-center justify-between gap-3 hover:bg-blue-50/20 transition';
                 
@@ -752,35 +875,42 @@
                 if (task.status === 'todo') {
                     badgeClass = 'bg-rose-50 text-rose-700 border-rose-100';
                     statusBadge = `
-                        <span class="soft-badge px-2.5 py-1 text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-100 flex items-center gap-1">
+                        <span class="soft-badge px-2.5 py-1 text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-100 flex items-center gap-1 shrink-0">
                             🔴 ยังไม่ทำ
                         </span>`;
                 } else if (task.status === 'doing') {
                     badgeClass = 'bg-[#B3DEF8]/40 text-[#0F4C81] border-blue-200';
                     statusBadge = `
-                        <span class="soft-badge px-2.5 py-1 text-[11px] font-semibold bg-[#B3DEF8]/40 text-[#0F4C81] border border-blue-200 flex items-center gap-1">
+                        <span class="soft-badge px-2.5 py-1 text-[11px] font-semibold bg-[#B3DEF8]/40 text-[#0F4C81] border border-blue-200 flex items-center gap-1 shrink-0">
                             🟡 กำลังทำ
                         </span>`;
                 } else {
                     badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-100';
                     statusBadge = `
-                        <span class="soft-badge px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-1">
+                        <span class="soft-badge px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-1 shrink-0">
                             🟢 เสร็จแล้ว
                         </span>`;
                 }
 
+                const startDateText = task.startDate 
+                    ? `<div class="text-[10px] text-[#58A1D3] mt-0.5 font-medium">📅 เริ่มงาน: ${formatThaiDate(task.startDate)}</div>` 
+                    : '';
+
                 item.innerHTML = `
                     <div class="flex items-center gap-2.5 min-w-0">
                         ${statusBadge}
-                        <span class="text-xs md:text-sm text-[#06172E] font-medium truncate ${task.status === 'done' ? 'line-through text-gray-400' : ''}">${escapeHtml(task.title)}</span>
+                        <div class="min-w-0">
+                            <span class="text-xs md:text-sm text-[#06172E] font-medium block truncate ${task.status === 'done' ? 'line-through text-gray-400' : ''}">${escapeHtml(task.title)}</span>
+                            ${startDateText}
+                        </div>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
-                        <select onchange="updateTaskStatus('${task.id}', this.value)" class="text-xs px-2.5 py-1.5 rounded-xl border border-blue-200 text-[#0F4C81] font-medium bg-white focus:outline-none ${badgeClass}">
+                        <select onchange="playClickSound(); updateTaskStatus('${task.id}', this.value)" class="text-xs px-2.5 py-1.5 rounded-xl border border-blue-200 text-[#0F4C81] font-medium bg-white focus:outline-none ${badgeClass}">
                             <option value="todo" ${task.status === 'todo' ? 'selected' : ''}>🔴 ยังไม่ทำ</option>
                             <option value="doing" ${task.status === 'doing' ? 'selected' : ''}>🟡 กำลังทำ</option>
                             <option value="done" ${task.status === 'done' ? 'selected' : ''}>🟢 เสร็จแล้ว</option>
                         </select>
-                        <button onclick="deleteTask('${task.id}')" class="text-gray-300 hover:text-rose-500 p-1.5 transition">
+                        <button onclick="playClickSound(); deleteTask('${task.id}')" class="text-gray-300 hover:text-rose-500 p-1.5 transition">
                             <i class="fa-solid fa-xmark text-xs"></i>
                         </button>
                     </div>
@@ -802,14 +932,20 @@
             garden.items.forEach(item => {
                 const el = document.createElement('div');
                 el.className = 'soft-card-sm p-3.5 flex justify-between items-center text-xs';
+                
+                const dateText = item.purchaseDate 
+                    ? `<div class="text-[10px] text-[#58A1D3] mt-0.5 font-medium">🛒 วันที่ซื้อ: ${formatThaiDate(item.purchaseDate)}</div>` 
+                    : '';
+
                 el.innerHTML = `
                     <div>
                         <span class="font-bold text-[#06172E] block text-xs md:text-sm">${escapeHtml(item.name)}</span>
                         <span class="text-[#58A1D3] font-medium text-[11px]">จำนวน: ${escapeHtml(item.qty)}</span>
+                        ${dateText}
                     </div>
                     <div class="flex items-center gap-2.5">
                         ${item.cost ? `<span class="text-[11px] font-bold text-[#0F4C81] bg-[#B3DEF8]/30 border border-blue-200 px-2.5 py-1 rounded-xl">~ ${formatMoney(item.cost)} ฿</span>` : ''}
-                        <button onclick="deleteItem('${item.id}')" class="text-gray-300 hover:text-rose-500 p-1.5 transition">
+                        <button onclick="playClickSound(); deleteItem('${item.id}')" class="text-gray-300 hover:text-rose-500 p-1.5 transition">
                             <i class="fa-solid fa-trash-can text-xs"></i>
                         </button>
                     </div>
@@ -859,7 +995,7 @@
                         <span class="text-xs font-bold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}">
                             ${isIncome ? '+' : '-'}${formatMoney(f.amount)} ฿
                         </span>
-                        <button onclick="deleteFinance('${f.id}')" class="text-gray-300 hover:text-rose-500 p-1 transition">
+                        <button onclick="playClickSound(); deleteFinance('${f.id}')" class="text-gray-300 hover:text-rose-500 p-1 transition">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
@@ -941,6 +1077,7 @@
             };
 
             gardens.push(newGarden);
+            saveToLocalStorage();
             closeModal('modal-add-garden');
             document.getElementById('garden-name-input').value = '';
             document.getElementById('garden-desc-input').value = '';
@@ -953,19 +1090,26 @@
             if (!activeGardenId) return;
 
             const title = document.getElementById('task-title-input').value.trim();
+            const startDate = document.getElementById('task-start-date-input').value;
             const status = document.getElementById('task-status-input').value;
 
             if (!title) return;
 
             const garden = gardens.find(g => g.id === activeGardenId);
+            const todayStr = new Date().toISOString().split('T')[0];
+
             garden.tasks.push({
                 id: 't_' + Date.now(),
                 title: title,
-                status: status
+                startDate: startDate || todayStr,
+                status: status,
+                completedAt: status === 'done' ? todayStr : null
             });
 
+            saveToLocalStorage();
             closeModal('modal-add-task');
             document.getElementById('task-title-input').value = '';
+            document.getElementById('task-start-date-input').value = todayStr;
             renderTasks(garden);
         }
 
@@ -976,8 +1120,9 @@
             const name = document.getElementById('item-name-input').value.trim();
             const qty = document.getElementById('item-qty-input').value.trim();
             const cost = parseFloat(document.getElementById('item-cost-input').value) || 0;
+            const purchaseDate = document.getElementById('item-purchase-date').value;
 
-            if (!name || !qty) return;
+            if (!name || !qty || !purchaseDate) return;
 
             const garden = gardens.find(g => g.id === activeGardenId);
             
@@ -986,7 +1131,8 @@
                 id: newItemId,
                 name: name,
                 qty: qty,
-                cost: cost
+                cost: cost,
+                purchaseDate: purchaseDate
             });
 
             if (cost > 0) {
@@ -999,6 +1145,7 @@
                 });
             }
 
+            saveToLocalStorage();
             closeModal('modal-add-item');
             document.getElementById('item-name-input').value = '';
             document.getElementById('item-qty-input').value = '';
@@ -1008,38 +1155,64 @@
             renderFinances(garden);
         }
 
-        function handleAddFinance(e) {
-            e.preventDefault();
-            if (!activeGardenId) return;
+        // Render Gardens Pending Tasks Summary Block Function
+        function renderGardensPendingSummary() {
+            const summaryContainer = document.getElementById('all-gardens-pending-summary');
+            if (!summaryContainer) return;
+            summaryContainer.innerHTML = '';
 
-            const type = document.getElementById('finance-type-input').value;
-            const title = document.getElementById('finance-title-input').value.trim();
-            const amount = parseFloat(document.getElementById('finance-amount-input').value) || 0;
+            if (gardens.length === 0) {
+                summaryContainer.innerHTML = `<div class="col-span-full text-center py-4 text-xs text-[#58A1D3] font-medium">ยังไม่มีแปลงทุเรียนในระบบ</div>`;
+                return;
+            }
 
-            if (!title || amount <= 0) return;
+            gardens.forEach((garden, index) => {
+                const pendingCount = garden.tasks ? garden.tasks.filter(t => t.status !== 'done').length : 0;
+                const isSelected = garden.id === activeGardenId;
 
-            const garden = gardens.find(g => g.id === activeGardenId);
-            garden.finances.push({
-                id: 'f_' + Date.now(),
-                type: type,
-                title: title,
-                amount: amount,
-                linkedItemId: null
+                const card = document.createElement('div');
+                card.className = `soft-card-sm p-3 flex items-center justify-between gap-3 cursor-pointer transition border ${
+                    isSelected ? 'border-[#0F4C81] bg-[#B3DEF8]/20 shadow-sm' : 'border-blue-100 hover:bg-blue-50/40'
+                }`;
+
+                card.onclick = () => {
+                    playClickSound();
+                    selectGarden(garden.id);
+                };
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-9 h-9 rounded-xl bg-[#0F4C81] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                            ${index + 1}
+                        </div>
+                        <div class="min-w-0">
+                            <span class="text-xs font-bold text-[#06172E] block truncate">${escapeHtml(garden.name)}</span>
+                            <span class="text-[10px] text-[#58A1D3]">คลิกเพื่อดูรายละเอียด</span>
+                        </div>
+                    </div>
+                    <div class="shrink-0 text-right">
+                        <span class="px-2.5 py-1 rounded-xl text-xs font-bold ${pendingCount > 0 ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}">
+                            ${pendingCount} งาน
+                        </span>
+                    </div>
+                `;
+                summaryContainer.appendChild(card);
             });
-
-            closeModal('modal-add-finance');
-            document.getElementById('finance-title-input').value = '';
-            document.getElementById('finance-amount-input').value = '';
-            renderFinances(garden);
         }
 
+        // Task & Item Deletion Handlers
         function updateTaskStatus(taskId, newStatus) {
             const garden = gardens.find(g => g.id === activeGardenId);
             if (!garden) return;
-            
             const task = garden.tasks.find(t => t.id === taskId);
             if (task) {
                 task.status = newStatus;
+                if (newStatus === 'done') {
+                    task.completedAt = new Date().toISOString().split('T')[0];
+                } else {
+                    task.completedAt = null;
+                }
+                saveToLocalStorage();
                 renderTasks(garden);
             }
         }
@@ -1048,16 +1221,16 @@
             const garden = gardens.find(g => g.id === activeGardenId);
             if (!garden) return;
             garden.tasks = garden.tasks.filter(t => t.id !== taskId);
+            saveToLocalStorage();
             renderTasks(garden);
         }
 
         function deleteItem(itemId) {
             const garden = gardens.find(g => g.id === activeGardenId);
             if (!garden) return;
-
             garden.items = garden.items.filter(i => i.id !== itemId);
             garden.finances = garden.finances.filter(f => f.linkedItemId !== itemId);
-
+            saveToLocalStorage();
             renderItems(garden);
             renderFinances(garden);
         }
@@ -1066,7 +1239,47 @@
             const garden = gardens.find(g => g.id === activeGardenId);
             if (!garden) return;
             garden.finances = garden.finances.filter(f => f.id !== financeId);
+            saveToLocalStorage();
             renderFinances(garden);
+        }
+
+        function openTaskHistoryModal() {
+            if (!activeGardenId) return;
+            const garden = gardens.find(g => g.id === activeGardenId);
+            if (!garden) return;
+
+            const listContainer = document.getElementById('task-history-list');
+            listContainer.innerHTML = '';
+
+            const completedTasks = garden.tasks.filter(t => t.status === 'done');
+
+            if (completedTasks.length === 0) {
+                listContainer.innerHTML = `<div class="text-center py-8 text-xs text-[#58A1D3] font-semibold">ยังไม่มีประวัติงานที่ทำเสร็จแล้วในสวนนี้</div>`;
+            } else {
+                completedTasks.forEach(task => {
+                    const el = document.createElement('div');
+                    el.className = 'soft-card-sm p-3.5 flex items-center justify-between text-xs';
+                    const dateFormatted = task.completedAt ? formatThaiDate(task.completedAt) : 'ไม่ระบุวันที่';
+                    const startFormatted = task.startDate ? formatThaiDate(task.startDate) : '-';
+                    el.innerHTML = `
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="soft-badge px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-1 shrink-0">
+                                🟢 เสร็จแล้ว
+                            </span>
+                            <div class="min-w-0">
+                                <span class="text-[#06172E] font-medium block truncate text-xs md:text-sm">${escapeHtml(task.title)}</span>
+                                <span class="text-[10px] text-[#58A1D3]">เริ่ม: ${startFormatted}</span>
+                            </div>
+                        </div>
+                        <div class="text-[11px] text-[#58A1D3] font-semibold shrink-0">
+                            📅 เสร็จ: ${dateFormatted}
+                        </div>
+                    `;
+                    listContainer.appendChild(el);
+                });
+            }
+
+            openModal('modal-task-history');
         }
 
         function confirmResetTasks() {
@@ -1077,6 +1290,7 @@
                     const garden = gardens.find(g => g.id === activeGardenId);
                     if (garden) {
                         garden.tasks = [];
+                        saveToLocalStorage();
                         renderTasks(garden);
                     }
                 }
@@ -1093,6 +1307,7 @@
                         const itemIds = garden.items.map(i => i.id);
                         garden.items = [];
                         garden.finances = garden.finances.filter(f => !itemIds.includes(f.linkedItemId));
+                        saveToLocalStorage();
                         renderItems(garden);
                         renderFinances(garden);
                     }
@@ -1108,6 +1323,7 @@
                     const garden = gardens.find(g => g.id === activeGardenId);
                     if (garden) {
                         garden.finances = [];
+                        saveToLocalStorage();
                         renderFinances(garden);
                     }
                 }
@@ -1123,6 +1339,7 @@
                 'คุณแน่ใจหรือไม่ว่าต้องการลบสวนนี้รวมถึงขั้นตอนและบัญชีทั้งหมด?',
                 () => {
                     gardens = gardens.filter(g => g.id !== gardenId);
+                    saveToLocalStorage();
                     if (gardens.length > 0) {
                         selectGarden(gardens[0].id);
                     } else {
@@ -1135,8 +1352,22 @@
 
         // --- Modals ---
         function openAddGardenModal() { openModal('modal-add-garden'); }
-        function openAddTaskModal() { if (activeGardenId) openModal('modal-add-task'); }
-        function openAddItemModal() { if (activeGardenId) openModal('modal-add-item'); }
+        function openAddTaskModal() { 
+            if (activeGardenId) {
+                const todayIso = new Date().toISOString().split('T')[0];
+                const taskDateInput = document.getElementById('task-start-date-input');
+                if (taskDateInput) taskDateInput.value = todayIso;
+                openModal('modal-add-task'); 
+            }
+        }
+        function openAddItemModal() { 
+            if (activeGardenId) {
+                const todayIso = new Date().toISOString().split('T')[0];
+                const itemDateInput = document.getElementById('item-purchase-date');
+                if (itemDateInput) itemDateInput.value = todayIso;
+                openModal('modal-add-item'); 
+            }
+        }
 
         function openAddFinanceModal(type) {
             if (!activeGardenId) return;
@@ -1172,6 +1403,24 @@
 
         function formatMoney(amount) {
             return Number(amount).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatThaiDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const y = parseInt(parts[0]) + 543;
+                    const m = parseInt(parts[1]);
+                    const d = parseInt(parts[2]);
+                    const thaiMonthsShort = [
+                        '', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+                        'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+                    ];
+                    return `${d} ${thaiMonthsShort[m]} ${y}`;
+                }
+            } catch(e) {}
+            return dateStr;
         }
 
         function escapeHtml(text) {
